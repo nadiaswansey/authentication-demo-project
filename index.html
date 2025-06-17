@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureAuth Pro - Authentication Demo</title>
+    <style>
+        /* =================================
+           RESET AND BASE STYLES
+           ================================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* Professional gradient using corporate blues and grays */
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #4a5568 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2d3748;
+        }
+
+        /* =================================
+           MAIN CONTAINER LAYOUT
+           ================================= */
+        .app-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+            min-height: 600px;
+            position: relative;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Header section with professional branding */
+        .header {
+            background: linear-gradient(135deg, #1a202c, #2d3748);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 3px solid #4299e1;
+        }
+
+        .header h1 {
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header .subtitle {
+            opacity: 0.9;
+            font-size: 0.9rem;
+            color: #cbd5e0;
+        }
+
+        /* =================================
+           CONTENT AREA STYLING
+           ================================= */
+        .content {
+            padding: 2rem;
+        }
+
+        /* Tab navigation styling */
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: #718096;
+        }
+
+        /* Active and hover states for tabs */
+        .tab.active {
+            border-bottom-color: #4299e1;
+            color: #2b6cb0;
+            background: #f7fafc;
+        }
+
+        .tab:hover {
+            background: #f7fafc;
+            color: #2b6cb0;
+        }
+
+        /* =================================
+           FORM SECTIONS AND ANIMATIONS
+           ================================= */
+        .form-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        /* Smooth fade-in animation for form transitions */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* =================================
+           FORM INPUT STYLING
+           ================================= */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #ffffff;
+        }
+
+        /* Input focus states */
+        .form-group input:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        /* Input validation states */
+        .form-group input.error {
+            border-color: #e53e3e;
+            background: #fed7d7;
+        }
+
+        .form-group input.success {
+            border-color: #38a169;
+            background: #f0fff4;
+        }
+
+        /* =================================
+           ERROR AND SUCCESS MESSAGES
+           ================================= */
+        .error-message {
+            color: #e53e3e;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: none;
+            font-weight: 500;
+        }
+
+        .success-message {
+            color: #38a169;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: none;
+            font-weight: 500;
+        }
+
+        /* =================================
+           PASSWORD STRENGTH INDICATOR
+           ================================= */
+        .password-strength {
+            margin-top: 0.5rem;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        /* Password strength color indicators */
+        .strength-weak { background: #e53e3e; }
+        .strength-medium { background: #dd6b20; }
+        .strength-strong { background: #38a169; }
+
+        /* =================================
+           MULTI-FACTOR AUTHENTICATION SECTION
+           ================================= */
+        .mfa-section {
+            background: #f7fafc;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border: 2px solid #e2e8f0;
+        }
+
+        .mfa-section h3 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        /* MFA option grid layout */
+        .mfa-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .mfa-option {
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            background: white;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        /* Selected MFA option styling */
+        .mfa-option.selected {
+            border-color: #4299e1;
+            background: #4299e1;
+            color: white;
+        }
+
+        .mfa-option:hover:not(.selected) {
+            border-color: #a0aec0;
+            background: #f7fafc;
+        }
+
+        /* MFA code input visibility control */
+        .mfa-code-input {
+            display: none;
+        }
+
+        .mfa-code-input.active {
+            display: block;
+        }
+
+        /* Verification code display */
+        .verification-code {
+            background: #f0fff4;
+            padding: 1rem;
+            border-radius: 6px;
+            text-align: center;
+            margin-bottom: 1rem;
+            border: 2px solid #38a169;
+        }
+
+        .verification-code strong {
+            font-size: 1.2rem;
+            color: #38a169;
+            font-weight: 700;
+        }
+
+        /* =================================
+           SINGLE SIGN-ON (SSO) SECTION
+           ================================= */
+        .sso-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .sso-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .sso-btn {
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .sso-btn:hover {
+            border-color: #4299e1;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(66, 153, 225, 0.15);
+            background: #f7fafc;
+        }
+
+        /* =================================
+           BUTTON STYLING
+           ================================= */
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #2b6cb0;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(66, 153, 225, 0.25);
+        }
+
+        .btn:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Secondary button variant */
+        .btn-secondary {
+            background: #718096;
+        }
+
+        .btn-secondary:hover {
+            background: #4a5568;
+        }
+
+        /* =================================
+           LOADING ANIMATION
+           ================================= */
+        .loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* =================================
+           STATUS MESSAGES
+           ================================= */
+        .status-message {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .status-success {
+            background: #f0fff4;
+            color: #22543d;
+            border: 2px solid #38a169;
+        }
+
+        .status-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 2px solid #e53e3e;
+        }
+
+        .status-info {
+            background: #e6fffa;
+            color: #234e52;
+            border: 2px solid #4fd1c7;
+        }
+
+        /* =================================
+           DASHBOARD INTERFACE
+           ================================= */
+        .dashboard {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        /* User avatar styling */
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #4299e1, #2b6cb0);
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            font-weight: 600;
+            border: 3px solid #e2e8f0;
+        }
+
+        /* User information display */
+        .user-info h2 {
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .user-info p {
+            color: #718096;
+            margin-bottom: 2rem;
+        }
+
+        /* Security status section */
+        .security-status {
+            background: #f0fff4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 2px solid #38a169;
+            text-align: left;
+        }
+
+        .security-status h3 {
+            color: #22543d;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        /* =================================
+           TOGGLE SWITCH COMPONENT
+           ================================= */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+            margin-left: 1rem;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e0;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #4299e1;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* =================================
+           RESPONSIVE DESIGN
+           ================================= */
+        @media (max-width: 480px) {
+            .app-container {
+                margin: 1rem;
+                max-width: none;
+            }
+            
+            .content {
+                padding: 1.5rem;
+            }
+            
+            .mfa-options {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- ==========================================
+             AUTHENTICATION INTERFACE
+             ========================================== -->
+        <div id="auth-interface">
+            <!-- Header section with app branding -->
+            <div class="header">
+                <h1>🔐 SecureAuth Pro</h1>
+                <p class="subtitle">Enterprise Authentication System</p>
+            </div>
+
+            <div class="content">
+                <!-- Status message display area -->
+                <div class="status-message" id="status-message"></div>
+
+                <!-- Tab navigation for different auth methods -->
+                <div class="auth-tabs">
+                    <div class="tab active" onclick="switchTab('login')">Login</div>
+                    <div class="tab" onclick="switchTab('register')">Register</div>
+                    <div class="tab" onclick="switchTab('sso')">SSO</div>
+                </div>
+
+                <!-- ==========================================
+                     LOGIN FORM SECTION
+                     ========================================== -->
+                <div id="login-form" class="form-section active">
+                    <form onsubmit="handleLogin(event)">
+                        <!-- Email input field -->
+                        <div class="form-group">
+                            <label for="login-email">Email Address</label>
+                            <input type="email" id="login-email" required>
+                            <div class="error-message" id="login-email-error"></div>
+                        </div>
+
+                        <!-- Password input field -->
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <input type="password" id="login-password" required>
+                            <div class="error-message" id="login-password-error"></div>
+                        </div>
+
+                        <!-- Multi-Factor Authentication Section -->
+                        <div class="mfa-section" id="mfa-section" style="display: none;">
+                            <h3>🔒 Multi-Factor Authentication</h3>
+                            
+                            <!-- MFA method selection options -->
+                            <div class="mfa-options">
+                                <div class="mfa-option selected" onclick="selectMFA('sms')" data-type="sms">
+                                    📱 SMS
+                                </div>
+                                <div class="mfa-option" onclick="selectMFA('app')" data-type="app">
+                                    📲 App
+                                </div>
+                                <div class="mfa-option" onclick="selectMFA('email')" data-type="email">
+                                    📧 Email
+                                </div>
+                            </div>
+
+                            <!-- Generated verification code display -->
+                            <div class="verification-code" id="verification-display" style="display: none;">
+                                <p>Your verification code:</p>
+                                <strong id="generated-code"></strong>
+                                <p style="font-size: 0.8rem; margin-top: 0.5rem; color: #718096;">
+                                    (In real app, this would be sent via selected method)
+                                </p>
+                            </div>
+
+                            <!-- MFA code input field -->
+                            <div class="mfa-code-input" id="mfa-code-section">
+                                <div class="form-group">
+                                    <label for="mfa-code">Verification Code</label>
+                                    <input type="text" id="mfa-code" placeholder="Enter 6-digit code" maxlength="6">
+                                    <div class="error-message" id="mfa-code-error"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Login submit button -->
+                        <button type="submit" class="btn" id="login-btn">Sign In Securely</button>
+                    </form>
+                </div>
+
+                <!-- ==========================================
+                     REGISTRATION FORM SECTION
+                     ========================================== -->
+                <div id="register-form" class="form-section">
+                    <form onsubmit="handleRegister(event)">
+                        <!-- Full name input -->
+                        <div class="form-group">
+                            <label for="reg-name">Full Name</label>
+                            <input type="text" id="reg-name" required>
+                            <div class="error-message" id="reg-name-error"></div>
+                        </div>
+
+                        <!-- Email input with validation -->
+                        <div class="form-group">
+                            <label for="reg-email">Email Address</label>
+                            <input type="email" id="reg-email" required>
+                            <div class="error-message" id="reg-email-error"></div>
+                            <div class="success-message" id="reg-email-success"></div>
+                        </div>
+
+                        <!-- Password input with strength indicator -->
+                        <div class="form-group">
+                            <label for="reg-password">Password</label>
+                            <input type="password" id="reg-password" required oninput="checkPasswordStrength()">
+                            <!-- Visual password strength bar -->
+                            <div class="password-strength">
+                                <div class="password-strength-bar" id="strength-bar"></div>
+                            </div>
+                            <div class="error-message" id="reg-password-error"></div>
+                            <div class="success-message" id="password-strength-text"></div>
+                        </div>
+
+                        <!-- Password confirmation with match validation -->
+                        <div class="form-group">
+                            <label for="confirm-password">Confirm Password</label>
+                            <input type="password" id="confirm-password" required oninput="checkPasswordMatch()">
+                            <div class="error-message" id="confirm-password-error"></div>
+                            <div class="success-message" id="confirm-password-success"></div>
+                        </div>
+
+                        <!-- Registration submit button -->
+                        <button type="submit" class="btn" id="register-btn">Create Account</button>
+                    </form>
+                </div>
+
+                <!-- ==========================================
+                     SINGLE SIGN-ON (SSO) SECTION
+                     ========================================== -->
+                <div id="sso-form" class="form-section">
+                    <div class="sso-section">
+                        <h3 style="margin-bottom: 1rem; color: #2d3748;">Single Sign-On</h3>
+                        <div class="sso-buttons">
+                            <!-- SSO provider buttons -->
+                            <button class="sso-btn" onclick="handleSSO('microsoft')">
+                                🏢 Sign in with Microsoft
+                            </button>
+                            <button class="sso-btn" onclick="handleSSO('google')">
+                                🔍 Sign in with Google
+                            </button>
+                            <button class="sso-btn" onclick="handleSSO('okta')">
+                                🛡️ Sign in with Okta
+                            </button>
+                            <button class="sso-btn" onclick="handleSSO('saml')">
+                                🔐 Enterprise SAML SSO
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             DASHBOARD INTERFACE (POST-LOGIN)
+             ========================================== -->
+        <div id="dashboard" class="dashboard">
+            <!-- User avatar and profile information -->
+            <div class="user-avatar" id="user-avatar">👤</div>
+            <div class="user-info">
+                <h2 id="user-name">Welcome!</h2>
+                <p id="user-email"></p>
+            </div>
+
+            <!-- Security settings and status display -->
+            <div class="security-status">
+                <h3>🛡️ Security Status: Active</h3>
+                
+                <!-- Multi-factor authentication toggle -->
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Multi-Factor Authentication</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <!-- Email notifications toggle -->
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Email Notifications</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <!-- Session monitoring toggle -->
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span>Session Monitoring</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- User session information and logout -->
+            <div style="margin-top: 2rem;">
+                <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+                    Last login: <strong id="last-login"></strong>
+                </p>
+                <button class="btn btn-secondary" onclick="logout()">Sign Out</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ==========================================
+           GLOBAL VARIABLES AND DATA MANAGEMENT
+           ========================================== */
+        
+        // Simulated user database stored in localStorage
+        let users = JSON.parse(localStorage.getItem('authDemoUsers')) || [];
+        
+        // Currently logged-in user information
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+        
+        // Authentication state variables
+        let selectedMFA = 'sms';           // Currently selected MFA method
+        let generatedCode = '';            // Generated verification code
+        let requiresMFA = false;           // Whether MFA is required for current login
+
+        /* ==========================================
+           INITIALIZATION AND EVENT HANDLERS
+           ========================================== */
+        
+        // Check if user is already logged in when page loads
+        window.addEventListener('load', function() {
+            if (currentUser) {
+                showDashboard();
+            }
+        });
+
+        /**
+         * Switches between different authentication tabs (Login, Register, SSO)
+         * @param {string} tabName - The name of the tab to switch to
+         */
+        function switchTab(tabName) {
+            // Remove active class from all tabs and forms
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.form-section').forEach(form => form.classList.remove('active'));
+            
+            // Add active class to selected tab and corresponding form
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-form').classList.add('active');
+            
+            // Clear any existing messages
+            clearMessages();
+        }
+
+        /* ==========================================
+           MULTI-FACTOR AUTHENTICATION FUNCTIONS
+           ========================================== */
+        
+        /**
+         * Handles MFA method selection and code generation
+         * @param {string} type - The type of MFA (sms, app, email)
+         */
+        function selectMFA(type) {
+            // Update visual selection state
+            document.querySelectorAll('.mfa-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            event.target.classList.add('selected');
+            selectedMFA = type;
+            
+            // Generate a random 6-digit verification code
+            generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+            document.getElementById('generated-code').textContent = generatedCode;
+            
+            // Show verification code and input field
+            document.getElementById('verification-display').style.display = 'block';
+            document.getElementById('mfa-code-section').classList.add('active');
+            
+            // Notify user that code has been "sent"
+            showMessage(`Verification code sent via ${type.toUpperCase()}`, 'info');
+        }
+
+        /* ==========================================
+           PASSWORD VALIDATION FUNCTIONS
+           ========================================== */
+        
+        /**
+         * Checks password strength in real-time and updates visual indicator
+         */
+        function checkPasswordStrength() {
+            const password = document.getElementById('reg-password').value;
+            const strengthBar = document.getElementById('strength-bar');
+            const strengthText = document.getElementById('password-strength-text');
+            
+            let strength = 0;
+            let feedback = '';
+            
+            // Calculate strength based on various criteria
+            if (password.length >= 8) strength += 25;        // Length requirement
+            if (password.match(/[a-z]/)) strength += 25;      // Lowercase letters
+            if (password.match(/[A-Z]/)) strength += 25;      // Uppercase letters
+            if (password.match(/[0-9]/)) strength += 25;      // Numbers
+            
+            // Update visual strength indicator
+            strengthBar.style.width = strength + '%';
+            
+            // Set color and feedback based on strength level
+            if (strength < 50) {
+                strengthBar.className = 'password-strength-bar strength-weak';
+                feedback = 'Weak password';
+            } else if (strength < 100) {
+                strengthBar.className = 'password-strength-bar strength-medium';
+                feedback = 'Medium strength';
+            } else {
+                strengthBar.className = 'password-strength-bar strength-strong';
+                feedback = 'Strong password!';
+                strengthText.style.display = 'block';
+                strengthText.textContent = feedback;
+            }
+        }
+
+        /**
+         * Validates that password confirmation matches the original password
+         */
+        function checkPasswordMatch() {
+            const password = document.getElementById('reg-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const confirmInput = document.getElementById('confirm-password');
+            const errorMsg = document.getElementById('confirm-password-error');
+            const successMsg = document.getElementById('confirm-password-success');
+            
+            if (confirmPassword && password !== confirmPassword) {
+                // Passwords don't match - show error
+                confirmInput.classList.add('error');
+                errorMsg.textContent = 'Passwords do not match';
+                errorMsg.style.display = 'block';
+                successMsg.style.display = 'none';
+            } else if (confirmPassword && password === confirmPassword) {
+                // Passwords match - show success
+                confirmInput.classList.remove('error');
+                confirmInput.classList.add('success');
+                errorMsg.style.display = 'none';
+                successMsg.style.display = 'block';
+                successMsg.textContent = 'Passwords match!';
+            }
+        }
+
+        /* ==========================================
+           VALIDATION UTILITY FUNCTIONS
+           ========================================== */
+        
+        /**
+         * Validates email address format using regex
+         * @param {string} email - Email address to validate
+         * @returns {boolean} - True if email is valid
+         */
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        /* ==========================================
+           USER REGISTRATION FUNCTIONALITY
+           ========================================== */
+        
+        /**
+         * Handles user registration form submission
+         * @param {Event} event - Form submission event
+         */
+        function handleRegister(event) {
+            event.preventDefault();
+            
+            // Get form data
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            // Validate email format
+            if (!validateEmail(email)) {
+                showFieldError('reg-email', 'Please enter a valid email address');
+                return;
+            }
+            
+            // Check if email is already registered
+            if (users.find(user => user.email === email)) {
+                showFieldError('reg-email', 'Email already registered');
+                return;
+            }
+            
+            // Validate password length
+            if (password.length < 8) {
+                showFieldError('reg-password', 'Password must be at least 8 characters');
+                return;
+            }
+            
+            // Validate password confirmation
+            if (password !== confirmPassword) {
+                showFieldError('confirm-password', 'Passwords do not match');
+                return;
+            }
+            
+            // Show loading state
+            const btn = document.getElementById('register-btn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+            
+            // Simulate registration process with delay
+            setTimeout(() => {
+                // Create new user object
+                const newUser = {
+                    id: Date.now(),                              // Simple ID generation
+                    name: name,
+                    email: email,
+                    password: password,                          // In production, this would be hashed
+                    registeredAt: new Date().toISOString(),
+                    mfaEnabled: true                             // Enable MFA by default
+                };
+                
+                // Add user to database and save to localStorage
+                users.push(newUser);
+                localStorage.setItem('authDemoUsers', JSON.stringify(users));
+                
+                // Reset button state
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                
+                // Show success message
+                showMessage('Account created successfully! Please sign in.', 'success');
+                
+                // Auto-switch to login tab and pre-fill email
+                setTimeout(() => {
+                    switchTab('login');
+                    document.getElementById('login-email').value = email;
+                }, 1500);
+                
+            }, 2000); // 2-second delay to simulate server processing
+        }
+
+        /* ==========================================
+           USER LOGIN FUNCTIONALITY
+           ========================================== */
+        
+        /**
+         * Handles user login form submission with MFA support
+         * @param {Event} event - Form submission event
+         */
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            // Get form data
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const mfaCode = document.getElementById('mfa-code').value;
+            
+            // Find user in database
+            const user = users.find(u => u.email === email);
+            
+            // Validate credentials
+            if (!user || user.password !== password) {
+                showMessage('Invalid email or password', 'error');
+                return;
+            }
+            
+            // Check if MFA is required and not yet completed
+            if (user.mfaEnabled && !requiresMFA) {
+                requiresMFA = true;
+                document.getElementById('mfa-section').style.display = 'block';
+                selectMFA('sms'); // Default to SMS MFA
+                showMessage('Multi-factor authentication required', 'info');
+                return;
+            }
+            
+            // Validate MFA code if MFA is required
+            if (requiresMFA) {
+                if (!mfaCode) {
+                    showFieldError('mfa-code', 'Please enter the verification code');
+                    return;
+                }
+                
+                if (mfaCode !== generatedCode) {
+                    showFieldError('mfa-code', 'Invalid verification code');
+                    return;
+                }
+            }
+            
+            // Show loading state
+            const btn = document.getElementById('login-btn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+            
+            // Simulate login process with delay
+            setTimeout(() => {
+                // Update user's last login timestamp
+                user.lastLogin = new Date().toISOString();
+                localStorage.setItem('authDemoUsers', JSON.stringify(users));
+                
+                // Set current user session
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Reset button state
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                
+                // Show success and redirect to dashboard
+                showMessage('Login successful!', 'success');
+                
+                setTimeout(() => {
+                    showDashboard();
+                }, 1000);
+                
+            }, 1500); // 1.5-second delay to simulate authentication
+        }
+
+        /* ==========================================
+           SINGLE SIGN-ON (SSO) FUNCTIONALITY
+           ========================================== */
+        
+        /**
+         * Handles SSO login with various providers
+         * @param {string} provider - SSO provider name (microsoft, google, okta, saml)
+         */
+        function handleSSO(provider) {
+            const btn = event.target;
+            
+            // Disable button and show loading state
+            btn.style.pointerEvents = 'none';
+            btn.innerHTML = '🔄 Redirecting...';
+            
+            // Simulate SSO redirect and authentication
+            setTimeout(() => {
+                // Create simulated SSO user
+                const ssoUser = {
+                    id: Date.now(),
+                    name: `${provider.charAt(0).toUpperCase() + provider.slice(1)} User`,
+                    email: `user@${provider}.com`,
+                    provider: provider,                      // Track SSO provider
+                    lastLogin: new Date().toISOString(),
+                    mfaEnabled: true                         // SSO providers typically handle MFA
+                };
+                
+                // Set user session
+                currentUser = ssoUser;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Show success message
+                showMessage(`Successfully authenticated via ${provider.toUpperCase()}!`, 'success');
+                
+                // Redirect to dashboard
+                setTimeout(() => {
+                    showDashboard();
+                }, 1000);
+                
+            }, 2000); // 2-second delay to simulate SSO redirect
+        }
+
+        /* ==========================================
+           DASHBOARD AND SESSION MANAGEMENT
+           ========================================== */
+        
+        /**
+         * Displays the user dashboard after successful authentication
+         */
+        function showDashboard() {
+            // Hide authentication interface and show dashboard
+            document.getElementById('auth-interface').style.display = 'none';
+            document.getElementById('dashboard').classList.add('active');
+            
+            // Populate user information in dashboard
+            document.getElementById('user-name').textContent = `Welcome, ${currentUser.name}!`;
+            document.getElementById('user-email').textContent = currentUser.email;
+            document.getElementById('user-avatar').textContent = currentUser.name.charAt(0);
+            
+            // Display last login information
+            if (currentUser.lastLogin) {
+                const lastLogin = new Date(currentUser.lastLogin).toLocaleString();
+                document.getElementById('last-login').textContent = lastLogin;
+            } else {
+                document.getElementById('last-login').textContent = 'First login';
+            }
+        }
+
+        /**
+         * Handles user logout and session cleanup
+         */
+        function logout() {
+            // Clear user session data
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            requiresMFA = false;
+            
+            // Hide dashboard and show authentication interface
+            document.getElementById('dashboard').classList.remove('active');
+            document.getElementById('auth-interface').style.display = 'block';
+            
+            // Reset all forms to clean state
+            document.querySelectorAll('form').forEach(form => form.reset());
+            document.getElementById('mfa-section').style.display = 'none';
+            
+            // Show logout confirmation
+            showMessage('Logged out successfully', 'success');
+        }
+
+        /* ==========================================
+           UI FEEDBACK AND MESSAGE FUNCTIONS
+           ========================================== */
+        
+        /**
+         * Displays status messages to the user
+         * @param {string} message - Message text to display
+         * @param {string} type - Message type (success, error, info)
+         */
+        function showMessage(message, type) {
+            const statusDiv = document.getElementById('status-message');
+            statusDiv.className = `status-message status-${type}`;
+            statusDiv.textContent = message;
+            statusDiv.style.display = 'block';
+            
+            // Auto-hide message after 4 seconds
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 4000);
+        }
+
+        /**
+         * Displays field-specific error messages
+         * @param {string} fieldId - ID of the field with error
+         * @param {string} message - Error message to display
+         */
+        function showFieldError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const errorDiv = document.getElementById(fieldId + '-error');
+            
+            // Apply error styling and show message
+            field.classList.add('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            // Clear error when user starts typing
+            field.addEventListener('input', function() {
+                field.classList.remove('error');
+                errorDiv.style.display = 'none';
+            }, { once: true });
+        }
+
+        /**
+         * Clears all status and error messages
+         */
+        function clearMessages() {
+            // Hide all status messages
+            document.querySelectorAll('.status-message').forEach(msg => {
+                msg.style.display = 'none';
+            });
+            
+            // Hide all error messages
+            document.querySelectorAll('.error-message').forEach(error => {
+                error.style.display = 'none';
+            });
+            
+            // Remove validation classes from inputs
+            document.querySelectorAll('input').forEach(input => {
+                input.classList.remove('error', 'success');
+            });
+        }
+
+        /* ==========================================
+           DEMO DATA INITIALIZATION
+           ========================================== */
+        
+        // Initialize with demo data if no users exist
+        if (users.length === 0) {
+            users = [
+                {
+                    id: 1,
+                    name: 'Demo User',
+                    email: 'demo@example.com',
+                    password: 'password123',                 // Demo password for testing
+                    registeredAt: new Date().toISOString(),
+                    mfaEnabled: true
+                },
+                {
+                    id: 2,
+                    name: 'John Smith',
+                    email: 'john@company.com',
+                    password: 'securepass456',
+                    registeredAt: new Date().toISOString(),
+                    mfaEnabled: true
+                }
+            ];
+            
+            // Save demo data to localStorage
+            localStorage.setItem('authDemoUsers', JSON.stringify(users));
+        }
+
+        /* ==========================================
+           ADDITIONAL DEMO FEATURES
+           ========================================== */
+        
+        // Add demo credentials hint for testing
+        console.log('Demo Credentials for Testing:');
+        console.log('Email: demo@example.com');
+        console.log('Password: password123');
+        console.log('Or create a new account using the Register tab');
+        
+        // Optional: Add demo banner (uncomment to use)
+        /*
+        const demoBanner = document.createElement('div');
+        demoBanner.style.cssText = `
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            background: #4299e1; 
+            color: white; 
+            text-align: center; 
+            padding: 0.5rem; 
+            font-size: 0.9rem; 
+            z-index: 1000;
+        `;
+        demoBanner.textContent = '🔒 Demo Mode - Use demo@example.com / password123 or create new account';
+        document.body.appendChild(demoBanner);
+        */
+    </script>
+</body>
+</html>
