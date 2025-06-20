@@ -4,41 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SecureAuth Pro - Enterprise Authentication Demo</title>
-    
-    <!-- 
-    ========================================
-    ENTERPRISE AUTHENTICATION SYSTEM DEMO
-    ========================================
-    
-    Purpose: Demonstrate enterprise-level authentication capabilities including:
-    - Multi-Factor Authentication (MFA)
-    - Single Sign-On (SSO) integration  
-    - SAML/OAuth protocol simulation
-    - Session management and security
-    - User lifecycle management
-    - Audit logging and monitoring
-    
-    Architecture Notes:
-    - Single-page demo for interview purposes
-    - In production, would be split into:
-      * Frontend (React/Angular/Vue)
-      * Backend API (C# .NET Core, Node.js, etc.)
-      * Database layer (SQL Server, PostgreSQL)
-      * Identity providers (Azure AD, Okta, etc.)
-    
-    Security Features Demonstrated:
-    - Password strength validation
-    - Email format validation
-    - MFA code generation and validation
-    - Session management with localStorage
-    - Input sanitization and validation
-    - Simulated enterprise SSO flows
-    -->
-    
     <style>
-        /* =================================
-           RESET AND BASE STYLES
-           ================================= */
+        /* Reset and base styles */
         * {
             margin: 0;
             padding: 0;
@@ -47,11 +14,6 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            /* 
-            Professional gradient using corporate colors
-            This creates a modern, enterprise-appropriate visual foundation
-            Colors chosen to convey trust and security
-            */
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #4a5568 100%);
             min-height: 100vh;
             display: flex;
@@ -60,9 +22,6 @@
             color: #2d3748;
         }
 
-        /* =================================
-           MAIN CONTAINER LAYOUT
-           ================================= */
         .app-container {
             background: white;
             border-radius: 12px;
@@ -73,27 +32,14 @@
             min-height: 600px;
             position: relative;
             border: 1px solid #e2e8f0;
-            /* 
-            Container designed for optimal user experience:
-            - Appropriate size for authentication forms
-            - Professional shadowing for depth
-            - Responsive design considerations
-            */
         }
 
-        /* Header section with professional branding */
         .header {
             background: linear-gradient(135deg, #1a202c, #2d3748);
             color: white;
             padding: 1.5rem;
             text-align: center;
             border-bottom: 3px solid #4299e1;
-            /* 
-            Enterprise branding considerations:
-            - Professional color scheme
-            - Clear visual hierarchy
-            - Brand consistency
-            */
         }
 
         .header h1 {
@@ -108,20 +54,11 @@
             color: #cbd5e0;
         }
 
-        /* =================================
-           CONTENT AREA STYLING
-           ================================= */
         .content {
             padding: 2rem;
         }
 
-        /* 
-        Tab navigation for different authentication methods
-        Enterprise consideration: Multiple auth methods support different user types
-        - Login: Standard username/password + MFA
-        - Register: Self-service account creation
-        - SSO: Enterprise identity provider integration
-        */
+        /* Tab navigation */
         .auth-tabs {
             display: flex;
             margin-bottom: 2rem;
@@ -137,9 +74,9 @@
             transition: all 0.3s ease;
             font-weight: 500;
             color: #718096;
+            user-select: none;
         }
 
-        /* Active and hover states for improved UX */
         .tab.active {
             border-bottom-color: #4299e1;
             color: #2b6cb0;
@@ -151,31 +88,22 @@
             color: #2b6cb0;
         }
 
-        /* =================================
-           FORM SECTIONS AND ANIMATIONS
-           ================================= */
+        /* Form sections */
         .form-section {
             display: none;
             animation: fadeIn 0.3s ease;
-            /* 
-            Smooth transitions improve user experience
-            Enterprise applications should feel responsive and polished
-            */
         }
 
         .form-section.active {
             display: block;
         }
 
-        /* Smooth fade-in animation for form transitions */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* =================================
-           FORM INPUT STYLING
-           ================================= */
+        /* Form styling */
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -195,22 +123,14 @@
             font-size: 1rem;
             transition: all 0.3s ease;
             background: #ffffff;
-            /* 
-            Input styling designed for:
-            - Accessibility (adequate padding, font size)
-            - Visual feedback (border colors, transitions)
-            - Professional appearance
-            */
         }
 
-        /* Input focus states for accessibility */
         .form-group input:focus {
             outline: none;
             border-color: #4299e1;
             box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
         }
 
-        /* Input validation states provide immediate feedback */
         .form-group input.error {
             border-color: #e53e3e;
             background: #fed7d7;
@@ -221,9 +141,7 @@
             background: #f0fff4;
         }
 
-        /* =================================
-           ERROR AND SUCCESS MESSAGES
-           ================================= */
+        /* Error and success messages */
         .error-message {
             color: #e53e3e;
             font-size: 0.8rem;
@@ -240,21 +158,13 @@
             font-weight: 500;
         }
 
-        /* =================================
-           PASSWORD STRENGTH INDICATOR
-           ================================= */
+        /* Password strength indicator */
         .password-strength {
             margin-top: 0.5rem;
             height: 4px;
             background: #e2e8f0;
             border-radius: 2px;
             overflow: hidden;
-            /* 
-            Password strength visual indicator:
-            - Helps users create secure passwords
-            - Reduces support tickets for account lockouts
-            - Improves overall security posture
-            */
         }
 
         .password-strength-bar {
@@ -264,27 +174,17 @@
             border-radius: 2px;
         }
 
-        /* Password strength color indicators */
         .strength-weak { background: #e53e3e; }
         .strength-medium { background: #dd6b20; }
         .strength-strong { background: #38a169; }
 
-        /* =================================
-           MULTI-FACTOR AUTHENTICATION SECTION
-           ================================= */
+        /* MFA section */
         .mfa-section {
             background: #f7fafc;
             padding: 1.5rem;
             border-radius: 8px;
             margin-bottom: 1.5rem;
             border: 2px solid #e2e8f0;
-            /* 
-            MFA Section Design Rationale:
-            - Visually distinct to indicate security step
-            - Clear options for different MFA methods
-            - Enterprise consideration: Support multiple MFA types
-              for different user groups and security requirements
-            */
         }
 
         .mfa-section h3 {
@@ -294,7 +194,6 @@
             font-weight: 600;
         }
 
-        /* MFA option grid layout for easy selection */
         .mfa-options {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -315,7 +214,6 @@
             font-weight: 500;
         }
 
-        /* Selected MFA option styling */
         .mfa-option.selected {
             border-color: #4299e1;
             background: #4299e1;
@@ -327,7 +225,6 @@
             background: #f7fafc;
         }
 
-        /* MFA code input visibility control */
         .mfa-code-input {
             display: none;
         }
@@ -336,7 +233,6 @@
             display: block;
         }
 
-        /* Verification code display */
         .verification-code {
             background: #f0fff4;
             padding: 1rem;
@@ -352,18 +248,9 @@
             font-weight: 700;
         }
 
-        /* =================================
-           SINGLE SIGN-ON (SSO) SECTION
-           ================================= */
+        /* SSO section */
         .sso-section {
             margin-bottom: 1.5rem;
-            /* 
-            SSO Integration Considerations:
-            - Multiple provider support (Microsoft, Google, Okta, SAML)
-            - Enterprise identity provider compatibility
-            - Seamless user experience
-            - Reduced password fatigue
-            */
         }
 
         .sso-buttons {
@@ -394,65 +281,7 @@
             background: #f7fafc;
         }
 
-        /* =================================
-           ENTERPRISE ADMIN DASHBOARD SECTION
-           ================================= */
-        .admin-section {
-            background: #fff5f5;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            border: 2px solid #feb2b2;
-            display: none;
-            /* 
-            Admin Dashboard Design:
-            - Separate visual styling to indicate admin functions
-            - Would typically require elevated permissions
-            - Enterprise consideration: Role-based access control
-            */
-        }
-
-        .admin-section.active {
-            display: block;
-        }
-
-        .admin-section h3 {
-            color: #742a2a;
-            margin-bottom: 1rem;
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        .admin-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 1rem;
-            border-radius: 6px;
-            text-align: center;
-            border: 1px solid #e2e8f0;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #2d3748;
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: #718096;
-            margin-top: 0.25rem;
-        }
-
-        /* =================================
-           BUTTON STYLING
-           ================================= */
+        /* Button styling */
         .btn {
             width: 100%;
             padding: 0.75rem;
@@ -479,7 +308,6 @@
             box-shadow: none;
         }
 
-        /* Secondary button variant */
         .btn-secondary {
             background: #718096;
         }
@@ -488,22 +316,7 @@
             background: #4a5568;
         }
 
-        /* Admin-specific button styling */
-        .btn-admin {
-            background: #e53e3e;
-            font-size: 0.9rem;
-            padding: 0.5rem 1rem;
-            width: auto;
-            margin: 0.25rem;
-        }
-
-        .btn-admin:hover {
-            background: #c53030;
-        }
-
-        /* =================================
-           LOADING ANIMATION
-           ================================= */
+        /* Loading animation */
         .loading {
             position: relative;
             color: transparent;
@@ -528,9 +341,7 @@
             100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
-        /* =================================
-           STATUS MESSAGES
-           ================================= */
+        /* Status messages */
         .status-message {
             padding: 1rem;
             border-radius: 6px;
@@ -558,9 +369,7 @@
             border: 2px solid #4fd1c7;
         }
 
-        /* =================================
-           DASHBOARD INTERFACE
-           ================================= */
+        /* Dashboard */
         .dashboard {
             display: none;
             text-align: center;
@@ -571,7 +380,6 @@
             display: block;
         }
 
-        /* User avatar styling */
         .user-avatar {
             width: 80px;
             height: 80px;
@@ -587,7 +395,6 @@
             border: 3px solid #e2e8f0;
         }
 
-        /* User information display */
         .user-info h2 {
             color: #2d3748;
             margin-bottom: 0.5rem;
@@ -599,7 +406,6 @@
             margin-bottom: 2rem;
         }
 
-        /* Security status section */
         .security-status {
             background: #f0fff4;
             padding: 1.5rem;
@@ -615,9 +421,7 @@
             text-align: center;
         }
 
-        /* =================================
-           TOGGLE SWITCH COMPONENT
-           ================================= */
+        /* Toggle switch */
         .toggle-switch {
             position: relative;
             display: inline-block;
@@ -664,9 +468,7 @@
             transform: translateX(26px);
         }
 
-        /* =================================
-           RESPONSIVE DESIGN
-           ================================= */
+        /* Responsive design */
         @media (max-width: 480px) {
             .app-container {
                 margin: 1rem;
@@ -681,109 +483,69 @@
                 grid-template-columns: 1fr;
                 gap: 0.75rem;
             }
-            
-            .admin-stats {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- ==========================================
-             AUTHENTICATION INTERFACE
-             
-             Enterprise Architecture Consideration:
-             This interface demonstrates multiple authentication
-             methods that would typically integrate with:
-             - Corporate Active Directory
-             - Identity providers (Azure AD, Okta)
-             - Custom user databases
-             - SAML/OAuth providers
-             ========================================== -->
+        <!-- Authentication Interface -->
         <div id="auth-interface">
-            <!-- Header section with enterprise branding -->
+            <!-- Header -->
             <div class="header">
                 <h1>🔐 SecureAuth Pro</h1>
                 <p class="subtitle">Enterprise Identity Management System</p>
             </div>
 
             <div class="content">
-                <!-- Status message display area -->
+                <!-- Status message display -->
                 <div class="status-message" id="status-message"></div>
 
-                <!-- Tab navigation for different authentication methods -->
+                <!-- Tab navigation -->
                 <div class="auth-tabs">
-                    <div class="tab active" id="login-tab" data-target="login">Login</div>
-                    <div class="tab" id="register-tab" data-target="register">Register</div>
-                    <div class="tab" id="sso-tab" data-target="sso">SSO</div>
-                    <div class="tab" id="admin-tab" data-target="admin" style="display: none;">Admin</div>
+                    <div class="tab active" id="login-tab">Login</div>
+                    <div class="tab" id="register-tab">Register</div>
+                    <div class="tab" id="sso-tab">SSO</div>
                 </div>
 
-                <!-- ==========================================
-                     LOGIN FORM SECTION
-                     
-                     Security Features Implemented:
-                     - Email validation
-                     - Password complexity requirements
-                     - Multi-factor authentication
-                     - Rate limiting simulation
-                     - Session management
-                     ========================================== -->
+                <!-- Login Form -->
                 <div id="login-form" class="form-section active">
                     <form onsubmit="handleLogin(event)">
-                        <!-- Email input field with validation -->
                         <div class="form-group">
                             <label for="login-email">Email Address</label>
                             <input type="email" id="login-email" required>
                             <div class="error-message" id="login-email-error"></div>
                         </div>
 
-                        <!-- Password input field -->
                         <div class="form-group">
                             <label for="login-password">Password</label>
                             <input type="password" id="login-password" required>
                             <div class="error-message" id="login-password-error"></div>
                         </div>
 
-                        <!-- 
-                        Multi-Factor Authentication Section
-                        
-                        Enterprise Implementation Notes:
-                        - Supports multiple MFA methods for user choice
-                        - SMS, app-based TOTP, and email verification
-                        - Would integrate with enterprise MFA solutions like:
-                          * Microsoft Authenticator
-                          * Duo Security
-                          * RSA SecurID
-                          * FIDO2/WebAuthn tokens
-                        -->
+                        <!-- MFA Section -->
                         <div class="mfa-section" id="mfa-section" style="display: none;">
                             <h3>🔒 Multi-Factor Authentication</h3>
                             
-                            <!-- MFA method selection options -->
                             <div class="mfa-options">
-                                <div class="mfa-option selected" onclick="selectMFA('sms')" data-type="sms">
+                                <div class="mfa-option selected" onclick="selectMFA('sms')">
                                     📱 SMS
                                 </div>
-                                <div class="mfa-option" onclick="selectMFA('app')" data-type="app">
-                                    📲 Authenticator
+                                <div class="mfa-option" onclick="selectMFA('app')">
+                                    📲 App
                                 </div>
-                                <div class="mfa-option" onclick="selectMFA('email')" data-type="email">
+                                <div class="mfa-option" onclick="selectMFA('email')">
                                     📧 Email
                                 </div>
                             </div>
 
-                            <!-- Generated verification code display -->
                             <div class="verification-code" id="verification-display" style="display: none;">
                                 <p>Your verification code:</p>
                                 <strong id="generated-code"></strong>
                                 <p style="font-size: 0.8rem; margin-top: 0.5rem; color: #718096;">
-                                    (In production, this would be sent via selected method)
+                                    (In real app, this would be sent via selected method)
                                 </p>
                             </div>
 
-                            <!-- MFA code input field -->
                             <div class="mfa-code-input" id="mfa-code-section">
                                 <div class="form-group">
                                     <label for="mfa-code">Verification Code</label>
@@ -793,31 +555,19 @@
                             </div>
                         </div>
 
-                        <!-- Login submit button -->
                         <button type="submit" class="btn" id="login-btn">Sign In Securely</button>
                     </form>
                 </div>
 
-                <!-- ==========================================
-                     REGISTRATION FORM SECTION
-                     
-                     Enterprise User Lifecycle Management:
-                     - Self-service registration
-                     - Password policy enforcement
-                     - Email verification (simulated)
-                     - Role assignment preparation
-                     - Audit trail creation
-                     ========================================== -->
+                <!-- Registration Form -->
                 <div id="register-form" class="form-section">
                     <form onsubmit="handleRegister(event)">
-                        <!-- Full name input -->
                         <div class="form-group">
                             <label for="reg-name">Full Name</label>
                             <input type="text" id="reg-name" required>
                             <div class="error-message" id="reg-name-error"></div>
                         </div>
 
-                        <!-- Email input with validation -->
                         <div class="form-group">
                             <label for="reg-email">Email Address</label>
                             <input type="email" id="reg-email" required>
@@ -825,18 +575,9 @@
                             <div class="success-message" id="reg-email-success"></div>
                         </div>
 
-                        <!-- 
-                        Password input with strength indicator
-                        Enterprise password policy enforcement:
-                        - Minimum length requirements
-                        - Character complexity rules
-                        - Real-time strength feedback
-                        - Prevention of common passwords
-                        -->
                         <div class="form-group">
                             <label for="reg-password">Password</label>
                             <input type="password" id="reg-password" required oninput="checkPasswordStrength()">
-                            <!-- Visual password strength indicator -->
                             <div class="password-strength">
                                 <div class="password-strength-bar" id="strength-bar"></div>
                             </div>
@@ -844,7 +585,6 @@
                             <div class="success-message" id="password-strength-text"></div>
                         </div>
 
-                        <!-- Password confirmation with match validation -->
                         <div class="form-group">
                             <label for="confirm-password">Confirm Password</label>
                             <input type="password" id="confirm-password" required oninput="checkPasswordMatch()">
@@ -852,33 +592,15 @@
                             <div class="success-message" id="confirm-password-success"></div>
                         </div>
 
-                        <!-- Registration submit button -->
                         <button type="submit" class="btn" id="register-btn">Create Account</button>
                     </form>
                 </div>
 
-                <!-- ==========================================
-                     SINGLE SIGN-ON (SSO) SECTION
-                     
-                     Enterprise SSO Integration Considerations:
-                     - SAML 2.0 protocol support
-                     - OAuth 2.0/OpenID Connect
-                     - Multiple identity provider support
-                     - Federated authentication
-                     - Enterprise directory integration
-                     ========================================== -->
+                <!-- SSO Form -->
                 <div id="sso-form" class="form-section">
                     <div class="sso-section">
                         <h3 style="margin-bottom: 1rem; color: #2d3748;">Single Sign-On</h3>
                         <div class="sso-buttons">
-                            <!-- 
-                            SSO provider buttons
-                            Each represents different enterprise integration scenarios:
-                            - Microsoft: Azure AD/Office 365 integration
-                            - Google: G Suite/Google Workspace
-                            - Okta: Enterprise identity platform
-                            - SAML: Generic enterprise SAML provider
-                            -->
                             <button class="sso-btn" onclick="handleSSO('microsoft')">
                                 🏢 Sign in with Microsoft Azure AD
                             </button>
@@ -894,74 +616,20 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- ==========================================
-                     ADMIN DASHBOARD SECTION
-                     
-                     Enterprise Administration Features:
-                     - User management capabilities
-                     - System monitoring and analytics
-                     - Security policy management
-                     - Audit log access
-                     - Role-based access control
-                     ========================================== -->
-                <div id="admin-form" class="form-section">
-                    <div class="admin-section active">
-                        <h3>🛠️ System Administration</h3>
-                        
-                        <!-- System statistics dashboard -->
-                        <div class="admin-stats">
-                            <div class="stat-card">
-                                <div class="stat-value" id="total-users">0</div>
-                                <div class="stat-label">Total Users</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value" id="active-sessions">0</div>
-                                <div class="stat-label">Active Sessions</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value" id="failed-logins">0</div>
-                                <div class="stat-label">Failed Logins (24h)</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-value" id="mfa-enabled">0%</div>
-                                <div class="stat-label">MFA Adoption</div>
-                            </div>
-                        </div>
-
-                        <!-- Admin action buttons -->
-                        <div style="text-align: center; margin-top: 1rem;">
-                            <button class="btn-admin" onclick="viewAuditLogs()">View Audit Logs</button>
-                            <button class="btn-admin" onclick="manageUsers()">Manage Users</button>
-                            <button class="btn-admin" onclick="securitySettings()">Security Settings</button>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
-        <!-- ==========================================
-             DASHBOARD INTERFACE (POST-LOGIN)
-             
-             Enterprise User Experience:
-             - Personalized dashboard
-             - Security status visibility
-             - Self-service security settings
-             - Session management controls
-             ========================================== -->
+        <!-- Dashboard Interface -->
         <div id="dashboard" class="dashboard">
-            <!-- User avatar and profile information -->
             <div class="user-avatar" id="user-avatar">👤</div>
             <div class="user-info">
                 <h2 id="user-name">Welcome!</h2>
                 <p id="user-email"></p>
             </div>
 
-            <!-- Security settings and status display -->
             <div class="security-status">
                 <h3>🛡️ Security Status: Active</h3>
                 
-                <!-- Multi-factor authentication toggle -->
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
                     <span>Multi-Factor Authentication</span>
                     <label class="toggle-switch">
@@ -970,7 +638,6 @@
                     </label>
                 </div>
                 
-                <!-- Email notifications toggle -->
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
                     <span>Email Notifications</span>
                     <label class="toggle-switch">
@@ -979,7 +646,6 @@
                     </label>
                 </div>
                 
-                <!-- Session monitoring toggle -->
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <span>Session Monitoring</span>
                     <label class="toggle-switch">
@@ -989,7 +655,6 @@
                 </div>
             </div>
 
-            <!-- User session information and logout -->
             <div style="margin-top: 2rem;">
                 <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                     Last login: <strong id="last-login"></strong>
@@ -1000,659 +665,182 @@
     </div>
 
     <script>
-        /* ==========================================
-           ENTERPRISE AUTHENTICATION SYSTEM
-           
-           Architecture Overview:
-           This demo simulates enterprise-level authentication
-           capabilities that would typically be implemented with:
-           
-           Backend Technologies:
-           - C# .NET Core Web API
-           - Entity Framework Core
-           - SQL Server Database
-           - Azure Active Directory integration
-           - Redis for session management
-           
-           Frontend Technologies:
-           - React/Angular/Vue.js SPA
-           - TypeScript for type safety
-           - Modern build tools (Webpack, Vite)
-           
-           Security Implementations:
-           - JWT tokens for stateless authentication
-           - HTTPS/TLS encryption
-           - CORS configuration
-           - Rate limiting and DDoS protection
-           - SQL injection prevention
-           - XSS protection
-           ========================================== */
-        
-        /* ==========================================
-           GLOBAL VARIABLES AND DATA MANAGEMENT
-           
-           Enterprise Consideration:
-           In production, this would be replaced with:
-           - RESTful API calls to backend services
-           - Centralized state management (Redux, Vuex)
-           - Secure token storage (HttpOnly cookies)
-           - Database persistence layer
-           ========================================== */
-        
-        // Simulated user database - would be SQL Server/PostgreSQL in production
-        let users = JSON.parse(localStorage.getItem('authDemoUsers')) || [];
-        
-        // Currently authenticated user session
-        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
-        
-        // Authentication state management
-        let selectedMFA = 'sms';           // Selected MFA method
-        let generatedCode = '';            // Generated verification code
-        let requiresMFA = false;           // MFA requirement flag
-        let loginAttempts = 0;             // Failed login attempt counter
-        let isAdmin = false;               // Admin role flag
-        
-        // Enterprise audit logging simulation
-        let auditLogs = JSON.parse(localStorage.getItem('auditLogs')) || [];
-        let securityEvents = JSON.parse(localStorage.getItem('securityEvents')) || [];
+        // Global variables
+        var users = JSON.parse(localStorage.getItem('authDemoUsers')) || [];
+        var currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+        var selectedMFA = 'sms';
+        var generatedCode = '';
+        var requiresMFA = false;
+        var loginAttempts = 0;
+        var auditLogs = JSON.parse(localStorage.getItem('auditLogs')) || [];
 
-        /* ==========================================
-           INITIALIZATION AND EVENT HANDLERS
-           
-           Enterprise Startup Sequence:
-           - Check existing authentication state
-           - Validate session tokens
-           - Initialize security monitoring
-           - Load user preferences
-           ========================================== */
-        
-        // Application initialization when DOM is loaded
+        // Initialize application
         window.addEventListener('load', function() {
             console.log('🚀 SecureAuth Pro Application Starting...');
             
-            // Initialize tab click handlers
-            initializeTabNavigation();
+            // Set up tab navigation
+            setupTabs();
             
-            // Check for existing authenticated session
+            // Check existing session
             if (currentUser) {
-                // Validate session is still valid (in production, verify JWT)
-                if (validateSession()) {
-                    showDashboard();
-                    logSecurityEvent('session_resumed', currentUser.email);
-                } else {
-                    // Session expired, clear invalid session
-                    logout();
-                    showMessage('Session expired. Please sign in again.', 'info');
-                }
+                showDashboard();
             }
             
-            // Initialize admin interface if user has admin privileges
-            checkAdminAccess();
-            
-            // Update system statistics for admin dashboard
-            updateAdminStats();
-            
-            // Initialize security monitoring
-            initializeSecurityMonitoring();
+            // Initialize demo data
+            initializeDemoData();
             
             console.log('✅ Application initialized successfully');
         });
 
-        /**
-         * Initializes tab navigation with event listeners
-         * More reliable than onclick attributes
-         */
-        function initializeTabNavigation() {
+        function setupTabs() {
             console.log('🔗 Setting up tab navigation...');
             
-            // Add click handlers to all tabs
-            const tabs = document.querySelectorAll('.tab');
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const target = this.getAttribute('data-target') || this.id.replace('-tab', '');
-                    console.log(`📋 Tab clicked: ${target}`);
-                    switchTab(target);
-                });
-                
-                // Add visual feedback
-                tab.style.cursor = 'pointer';
-            });
+            // Simple direct onclick approach
+            document.getElementById('login-tab').onclick = function() {
+                console.log('Login tab clicked');
+                switchTab('login');
+            };
             
-            console.log(`✅ Set up ${tabs.length} tab handlers`);
-        }
-
-        /**
-         * Validates current user session
-         * Enterprise implementation would verify JWT token validity
-         * @returns {boolean} - True if session is valid
-         */
-        function validateSession() {
-            if (!currentUser || !currentUser.sessionStart) {
-                return false;
-            }
+            document.getElementById('register-tab').onclick = function() {
+                console.log('Register tab clicked');
+                switchTab('register');
+            };
             
-            // Check if session is older than 8 hours (enterprise session timeout)
-            const sessionAge = Date.now() - new Date(currentUser.sessionStart).getTime();
-            const maxSessionAge = 8 * 60 * 60 * 1000; // 8 hours
+            document.getElementById('sso-tab').onclick = function() {
+                console.log('SSO tab clicked');
+                switchTab('sso');
+            };
             
-            return sessionAge < maxSessionAge;
+            console.log('✅ Tab navigation set up successfully');
         }
 
-        /**
-         * Gets phone number from user (with storage)
-         * @returns {Promise<string|null>} Phone number or null if cancelled
-         */
-        async function getPhoneNumber() {
-            // Check if we already have a phone number stored
-            if (currentUser?.phoneNumber) {
-                return currentUser.phoneNumber;
-            }
-            
-            // Check localStorage for previously entered phone
-            const savedPhone = localStorage.getItem('userPhoneNumber');
-            if (savedPhone) {
-                const useStored = confirm(`Use previously entered phone number ${maskPhoneNumber(savedPhone)}?`);
-                if (useStored) {
-                    return savedPhone;
-                }
-            }
-            
-            // Prompt for new phone number
-            return new Promise((resolve) => {
-                const modal = createPhoneModal();
-                document.body.appendChild(modal);
-                
-                const input = modal.querySelector('#phone-input');
-                const submitBtn = modal.querySelector('#phone-submit');
-                const cancelBtn = modal.querySelector('#phone-cancel');
-                
-                // Submit handler
-                submitBtn.onclick = () => {
-                    const phoneNumber = formatPhoneNumber(input.value);
-                    if (validatePhoneNumber(phoneNumber)) {
-                        // Store for future use
-                        localStorage.setItem('userPhoneNumber', phoneNumber);
-                        if (currentUser) {
-                            currentUser.phoneNumber = phoneNumber;
-                            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                        }
-                        
-                        document.body.removeChild(modal);
-                        resolve(phoneNumber);
-                    } else {
-                        showMessage('Please enter a valid phone number (e.g., +1 555 123 4567)', 'error');
-                        input.style.borderColor = '#e53e3e';
-                        input.focus();
-                    }
-                };
-                
-                // Cancel handler
-                cancelBtn.onclick = () => {
-                    document.body.removeChild(modal);
-                    resolve(null);
-                };
-                
-                // Enter key handler
-                input.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        submitBtn.click();
-                    }
-                });
-                
-                // Auto-focus and format input
-                setTimeout(() => {
-                    input.focus();
-                    input.addEventListener('input', (e) => {
-                        e.target.style.borderColor = '#e2e8f0'; // Reset border color
-                    });
-                }, 100);
-            });
-        }
-
-        /**
-         * Creates phone number input modal
-         * @returns {HTMLElement} Modal element
-         */
-        function createPhoneModal() {
-            const modal = document.createElement('div');
-            modal.style.cssText = `
-                position: fixed; 
-                top: 0; 
-                left: 0; 
-                right: 0; 
-                bottom: 0; 
-                background: rgba(0,0,0,0.7); 
-                display: flex; 
-                align-items: center; 
-                justify-content: center; 
-                z-index: 10000;
-                animation: fadeIn 0.3s ease;
-            `;
-            
-            modal.innerHTML = `
-                <div style="
-                    background: white; 
-                    padding: 2rem; 
-                    border-radius: 12px; 
-                    width: 90%; 
-                    max-width: 400px;
-                    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-                    animation: slideIn 0.3s ease;
-                ">
-                    <h3 style="margin-bottom: 1rem; color: #2d3748; text-align: center;">
-                        📱 Enter Your Phone Number
-                    </h3>
-                    <p style="margin-bottom: 1.5rem; color: #718096; font-size: 0.9rem; text-align: center;">
-                        We'll send a verification code to this number via SMS
-                    </p>
-                    <input 
-                        type="tel" 
-                        id="phone-input" 
-                        placeholder="+1 (555) 123-4567" 
-                        style="
-                            width: 100%; 
-                            padding: 0.75rem; 
-                            border: 2px solid #e2e8f0; 
-                            border-radius: 6px; 
-                            margin-bottom: 1.5rem;
-                            font-size: 1rem;
-                            text-align: center;
-                        "
-                    >
-                    <div style="display: flex; gap: 1rem;">
-                        <button id="phone-cancel" style="
-                            flex: 1; 
-                            padding: 0.75rem; 
-                            background: #718096; 
-                            color: white; 
-                            border: none; 
-                            border-radius: 6px; 
-                            cursor: pointer;
-                            font-weight: 600;
-                        ">
-                            Cancel
-                        </button>
-                        <button id="phone-submit" style="
-                            flex: 1; 
-                            padding: 0.75rem; 
-                            background: #4299e1; 
-                            color: white; 
-                            border: none; 
-                            border-radius: 6px; 
-                            cursor: pointer;
-                            font-weight: 600;
-                        ">
-                            Send SMS
-                        </button>
-                    </div>
-                    <p style="margin-top: 1rem; font-size: 0.8rem; color: #a0aec0; text-align: center;">
-                        Standard SMS rates may apply
-                    </p>
-                </div>
-            `;
-            
-            return modal;
-        }
-
-        /**
-         * Sends verification SMS via backend API
-         * @param {string} phoneNumber - Phone number to send SMS to
-         * @returns {Promise<Object>} API response
-         */
-        async function sendVerificationSMS(phoneNumber) {
-            try {
-                const response = await fetch(`${SMS_API_BASE}/api/send-verification-code`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        phoneNumber: phoneNumber,
-                        userEmail: currentUser?.email || 'anonymous'
-                    })
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `HTTP ${response.status}`);
-                }
-                
-                const result = await response.json();
-                console.log('SMS API Response:', result);
-                
-                return result;
-                
-            } catch (error) {
-                console.error('SMS API Error:', error);
-                throw new Error(`Failed to send SMS: ${error.message}`);
-            }
-        }
-
-        /**
-         * Validates phone number format (E.164)
-         * @param {string} phoneNumber - Phone number to validate
-         * @returns {boolean} True if valid
-         */
-        function validatePhoneNumber(phoneNumber) {
-            const phoneRegex = /^\+[1-9]\d{1,14}$/;
-            return phoneRegex.test(phoneNumber) && phoneNumber.length <= 16;
-        }
-
-        /**
-         * Formats phone number to E.164 standard
-         * @param {string} input - Raw phone input
-         * @returns {string} Formatted phone number
-         */
-        function formatPhoneNumber(input) {
-            // Remove all non-digits
-            const digits = input.replace(/\D/g, '');
-            
-            // Add US country code if missing
-            if (digits.length === 10) {
-                return `+1${digits}`;
-            } else if (digits.length === 11 && digits.startsWith('1')) {
-                return `+${digits}`;
-            }
-            
-            // Return with + prefix if not already there
-            return input.startsWith('+') ? input : `+${digits}`;
-        }
-
-        /**
-         * Checks admin access privileges
-         * In production, would verify role-based permissions
-         */
-        function checkAdminAccess() {
-            // Simple admin check for demo
-            if (currentUser && (currentUser.role === 'admin' || currentUser.email === 'admin@gallagher.com')) {
-                isAdmin = true;
-                document.getElementById('admin-tab').style.display = 'block';
-            } else {
-                isAdmin = false;
-                document.getElementById('admin-tab').style.display = 'none';
-            }
-        }
-
-        /**
-         * Updates admin dashboard statistics
-         */
-        function updateAdminStats() {
-            try {
-                const totalUsersElement = document.getElementById('total-users');
-                const activeSessionsElement = document.getElementById('active-sessions');
-                const failedLoginsElement = document.getElementById('failed-logins');
-                const mfaEnabledElement = document.getElementById('mfa-enabled');
-                
-                if (totalUsersElement) totalUsersElement.textContent = users.length;
-                if (activeSessionsElement) activeSessionsElement.textContent = currentUser ? 1 : 0;
-                if (failedLoginsElement) failedLoginsElement.textContent = loginAttempts;
-                
-                // Calculate MFA adoption rate
-                const mfaUsers = users.filter(user => user.mfaEnabled).length;
-                const mfaRate = users.length > 0 ? Math.round((mfaUsers / users.length) * 100) : 0;
-                if (mfaEnabledElement) mfaEnabledElement.textContent = mfaRate + '%';
-                
-            } catch (error) {
-                console.log('Admin stats update skipped (elements not found)');
-            }
-        }
-
-        /**
-         * Admin function placeholders
-         */
-        function viewAuditLogs() {
-            alert('Audit Logs:\n\n' + auditLogs.slice(-5).map(log => 
-                `${log.timestamp}: ${log.eventType} - ${log.userEmail || 'anonymous'}`
-            ).join('\n'));
-        }
-
-        function manageUsers() {
-            const userList = users.map(user => 
-                `${user.name} (${user.email}) - ${user.role || 'user'} - ${user.accountStatus || 'active'}`
-            ).join('\n');
-            alert('User Management:\n\n' + userList);
-        }
-
-        function securitySettings() {
-            alert('Security Settings:\n\n' +
-                '• Password Policy: 8+ characters, complexity required\n' +
-                '• MFA: Enabled by default\n' +
-                '• Session Timeout: 8 hours\n' +
-                '• Rate Limiting: 3 attempts per minute\n' +
-                '• Audit Logging: Enabled');
-        }
-
-        /**
-         * Switches between different authentication tabs
-         * @param {string} tabName - The name of the tab to switch to
-         */
         function switchTab(tabName) {
-            console.log(`🔄 Switching to tab: ${tabName}`);
+            console.log('🔄 Switching to tab: ' + tabName);
             
             try {
                 // Remove active class from all tabs
-                document.querySelectorAll('.tab').forEach(tab => {
-                    tab.classList.remove('active');
-                });
+                var tabs = document.querySelectorAll('.tab');
+                for (var i = 0; i < tabs.length; i++) {
+                    tabs[i].classList.remove('active');
+                }
                 
                 // Remove active class from all form sections
-                document.querySelectorAll('.form-section').forEach(form => {
-                    form.classList.remove('active');
-                });
+                var forms = document.querySelectorAll('.form-section');
+                for (var i = 0; i < forms.length; i++) {
+                    forms[i].classList.remove('active');
+                }
                 
                 // Activate the clicked tab
-                const activeTab = document.getElementById(tabName + '-tab');
+                var activeTab = document.getElementById(tabName + '-tab');
                 if (activeTab) {
                     activeTab.classList.add('active');
-                    console.log(`✅ Activated tab: ${tabName}`);
+                    console.log('✅ Activated tab: ' + tabName);
                 } else {
-                    console.error(`❌ Tab not found: ${tabName}-tab`);
+                    console.error('❌ Tab not found: ' + tabName + '-tab');
                 }
                 
                 // Activate the corresponding form
-                const targetForm = document.getElementById(tabName + '-form');
+                var targetForm = document.getElementById(tabName + '-form');
                 if (targetForm) {
                     targetForm.classList.add('active');
-                    console.log(`✅ Activated form: ${tabName}-form`);
+                    console.log('✅ Activated form: ' + tabName + '-form');
                 } else {
-                    console.error(`❌ Form not found: ${tabName}-form`);
+                    console.error('❌ Form not found: ' + tabName + '-form');
                 }
                 
-                // Clear any existing messages
+                // Clear messages
                 clearMessages();
-                
-                // Log navigation for audit purposes
-                if (typeof logSecurityEvent === 'function') {
-                    logSecurityEvent('tab_navigation', currentUser?.email, { tab: tabName });
-                }
                 
             } catch (error) {
                 console.error('❌ Error switching tabs:', error);
             }
         }
 
-        /* ==========================================
-           MULTI-FACTOR AUTHENTICATION FUNCTIONS
-           
-           Enterprise MFA Implementation:
-           - Support for multiple authentication methods
-           - Integration with enterprise MFA providers
-           - Fallback methods for reliability
-           - User preference management
-           ========================================== */
-        
-        /**
-         * Handles MFA method selection and code generation
-         * Enterprise implementation would integrate with:
-         * - SMS gateways (Twilio, AWS SNS)
-         * - TOTP providers (Google Authenticator, Microsoft Authenticator)
-         * - Hardware tokens (YubiKey, RSA SecurID)
-         * @param {string} type - The type of MFA (sms, app, email)
-         */
-        function selectMFA(type) {
-            // Update visual selection state
-            document.querySelectorAll('.mfa-option').forEach(option => {
-                option.classList.remove('selected');
-            });
+        function showMessage(message, type) {
+            var statusDiv = document.getElementById('status-message');
+            statusDiv.className = 'status-message status-' + type;
+            statusDiv.textContent = message;
+            statusDiv.style.display = 'block';
             
-            event.target.classList.add('selected');
-            selectedMFA = type;
-            
-            // Generate secure verification code
-            generatedCode = generateSecureCode();
-            document.getElementById('generated-code').textContent = generatedCode;
-            
-            // Show verification interface
-            document.getElementById('verification-display').style.display = 'block';
-            document.getElementById('mfa-code-section').classList.add('active');
-            
-            // Log MFA method selection for security audit
-            logSecurityEvent('mfa_method_selected', currentUser?.email, { method: type });
-            
-            // Simulate sending code via selected method
-            simulateCodeDelivery(type);
-            
-            // Notify user that code has been "sent"
-            showMessage(`Verification code sent via ${type.toUpperCase()}`, 'info');
+            setTimeout(function() {
+                statusDiv.style.display = 'none';
+            }, 4000);
         }
 
-        /**
-         * Generates a cryptographically secure verification code
-         * Enterprise implementation would use proper CSPRNG
-         * @returns {string} - 6-digit verification code
-         */
-        function generateSecureCode() {
-            // Use crypto.getRandomValues for better security in production
-            const array = new Uint32Array(1);
-            crypto.getRandomValues(array);
-            return String(array[0]).slice(-6).padStart(6, '0');
-        }
-
-        /**
-         * Simulates code delivery via selected MFA method
-         * Enterprise implementation would integrate with actual services
-         * @param {string} method - Delivery method (sms, app, email)
-         */
-        function simulateCodeDelivery(method) {
-            const deliveryMethods = {
-                sms: 'SMS to registered phone number',
-                app: 'Push notification to authenticator app',
-                email: 'Email to registered address'
-            };
+        function clearMessages() {
+            var messages = document.querySelectorAll('.status-message');
+            for (var i = 0; i < messages.length; i++) {
+                messages[i].style.display = 'none';
+            }
             
-            // Log code delivery attempt
-            logSecurityEvent('mfa_code_sent', currentUser?.email, { 
-                method: method,
-                destination: deliveryMethods[method]
-            });
+            var errors = document.querySelectorAll('.error-message');
+            for (var i = 0; i < errors.length; i++) {
+                errors[i].style.display = 'none';
+            }
+            
+            var inputs = document.querySelectorAll('input');
+            for (var i = 0; i < inputs.length; i++) {
+                inputs[i].classList.remove('error', 'success');
+            }
         }
 
-        /* ==========================================
-           PASSWORD VALIDATION FUNCTIONS
-           
-           Enterprise Password Policy:
-           - Minimum length requirements
-           - Character complexity rules
-           - Dictionary attack prevention
-           - Password history checking
-           - Regular expiration policies
-           ========================================== */
-        
-        /**
-         * Comprehensive password strength validation
-         * Enterprise implementation would include:
-         * - Common password dictionary checks
-         * - Breach database validation (HaveIBeenPwned API)
-         * - Company-specific policy enforcement
-         */
+        function showFieldError(fieldId, message) {
+            var field = document.getElementById(fieldId);
+            var errorDiv = document.getElementById(fieldId + '-error');
+            
+            field.classList.add('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            field.addEventListener('input', function() {
+                field.classList.remove('error');
+                errorDiv.style.display = 'none';
+            }, { once: true });
+        }
+
+        function validateEmail(email) {
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
         function checkPasswordStrength() {
-            const password = document.getElementById('reg-password').value;
-            const strengthBar = document.getElementById('strength-bar');
-            const strengthText = document.getElementById('password-strength-text');
+            var password = document.getElementById('reg-password').value;
+            var strengthBar = document.getElementById('strength-bar');
+            var strengthText = document.getElementById('password-strength-text');
             
-            let strength = 0;
-            let feedback = '';
-            const requirements = [];
+            var strength = 0;
             
-            // Enterprise password complexity requirements
-            if (password.length >= 8) {
-                strength += 20;
-                requirements.push('✓ Minimum length');
-            } else {
-                requirements.push('✗ At least 8 characters');
-            }
+            if (password.length >= 8) strength += 25;
+            if (password.match(/[a-z]/)) strength += 25;
+            if (password.match(/[A-Z]/)) strength += 25;
+            if (password.match(/[0-9]/)) strength += 25;
             
-            if (password.match(/[a-z]/)) {
-                strength += 20;
-                requirements.push('✓ Lowercase letters');
-            } else {
-                requirements.push('✗ Lowercase letters');
-            }
-            
-            if (password.match(/[A-Z]/)) {
-                strength += 20;
-                requirements.push('✓ Uppercase letters');
-            } else {
-                requirements.push('✗ Uppercase letters');
-            }
-            
-            if (password.match(/[0-9]/)) {
-                strength += 20;
-                requirements.push('✓ Numbers');
-            } else {
-                requirements.push('✗ Numbers');
-            }
-            
-            if (password.match(/[^a-zA-Z0-9]/)) {
-                strength += 20;
-                requirements.push('✓ Special characters');
-            } else {
-                requirements.push('✗ Special characters');
-            }
-            
-            // Update visual strength indicator
             strengthBar.style.width = strength + '%';
             
-            // Set color and feedback based on strength level
-            if (strength < 60) {
+            if (strength < 50) {
                 strengthBar.className = 'password-strength-bar strength-weak';
-                feedback = 'Weak - Does not meet enterprise requirements';
             } else if (strength < 100) {
                 strengthBar.className = 'password-strength-bar strength-medium';
-                feedback = 'Good - Meets basic requirements';
             } else {
                 strengthBar.className = 'password-strength-bar strength-strong';
-                feedback = 'Excellent - Meets all enterprise requirements';
                 strengthText.style.display = 'block';
-                strengthText.textContent = feedback;
+                strengthText.textContent = 'Strong password!';
             }
-            
-            // In production, would also check against:
-            // - Common password lists
-            // - Previously breached passwords
-            // - User's password history
         }
 
-        /**
-         * Password confirmation validation
-         * Ensures password consistency and prevents typos
-         */
         function checkPasswordMatch() {
-            const password = document.getElementById('reg-password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-            const confirmInput = document.getElementById('confirm-password');
-            const errorMsg = document.getElementById('confirm-password-error');
-            const successMsg = document.getElementById('confirm-password-success');
+            var password = document.getElementById('reg-password').value;
+            var confirmPassword = document.getElementById('confirm-password').value;
+            var confirmInput = document.getElementById('confirm-password');
+            var errorMsg = document.getElementById('confirm-password-error');
+            var successMsg = document.getElementById('confirm-password-success');
             
             if (confirmPassword && password !== confirmPassword) {
-                // Passwords don't match - show error
                 confirmInput.classList.add('error');
                 errorMsg.textContent = 'Passwords do not match';
                 errorMsg.style.display = 'block';
                 successMsg.style.display = 'none';
             } else if (confirmPassword && password === confirmPassword) {
-                // Passwords match - show success
                 confirmInput.classList.remove('error');
                 confirmInput.classList.add('success');
                 errorMsg.style.display = 'none';
@@ -1661,344 +849,118 @@
             }
         }
 
-        /* ==========================================
-           SECURITY AND AUDIT LOGGING FUNCTIONS
-           
-           Enterprise Audit Requirements:
-           - Log all security-related events
-           - Track user authentication attempts
-           - Monitor system access patterns
-           - Compliance reporting capabilities
-           ========================================== */
-        
-        /**
-         * Logs security events for audit purposes
-         * Enterprise implementation would send to SIEM/logging service
-         * @param {string} eventType - Type of security event
-         * @param {string} userEmail - User email (if applicable)
-         * @param {Object} metadata - Additional event data
-         */
-        function logSecurityEvent(eventType, userEmail = null, metadata = {}) {
-            const event = {
-                timestamp: new Date().toISOString(),
-                eventType: eventType,
-                userEmail: userEmail,
-                metadata: metadata,
-                userAgent: navigator.userAgent,
-                sessionId: currentUser?.sessionToken || 'anonymous'
-            };
+        function selectMFA(type) {
+            var options = document.querySelectorAll('.mfa-option');
+            for (var i = 0; i < options.length; i++) {
+                options[i].classList.remove('selected');
+            }
             
-            // Store in local audit log (in production, send to logging service)
-            auditLogs.push(event);
-            localStorage.setItem('auditLogs', JSON.stringify(auditLogs));
+            event.target.classList.add('selected');
+            selectedMFA = type;
             
-            // Console log for demo purposes
-            console.log(`Security Event: ${eventType}`, event);
+            generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+            document.getElementById('generated-code').textContent = generatedCode;
             
-            // In production, would also:
-            // - Send to centralized logging service
-            // - Alert on suspicious activities
-            // - Integrate with SIEM systems
+            document.getElementById('verification-display').style.display = 'block';
+            document.getElementById('mfa-code-section').classList.add('active');
+            
+            showMessage('Verification code sent via ' + type.toUpperCase(), 'info');
         }
 
-        /**
-         * Initializes security monitoring
-         * Sets up event listeners and monitoring systems
-         */
-        function initializeSecurityMonitoring() {
-            // Log page load
-            logSecurityEvent('page_loaded', null, { 
-                url: window.location.href,
-                referrer: document.referrer 
-            });
-            
-            // Monitor for suspicious activities
-            let rapidClickCount = 0;
-            document.addEventListener('click', () => {
-                rapidClickCount++;
-                setTimeout(() => { rapidClickCount--; }, 1000);
-                
-                if (rapidClickCount > 10) {
-                    logSecurityEvent('suspicious_activity', currentUser?.email, { 
-                        type: 'rapid_clicking',
-                        count: rapidClickCount 
-                    });
-                }
-            });
-            
-            // Monitor for copy attempts on sensitive fields
-            document.querySelectorAll('input[type="password"], #mfa-code').forEach(input => {
-                input.addEventListener('copy', () => {
-                    logSecurityEvent('sensitive_data_copied', currentUser?.email, { 
-                        field: input.id 
-                    });
-                });
-            });
-        }
-        
-        /**
-         * Enterprise-grade email validation
-         * @param {string} email - Email address to validate
-         * @returns {boolean} - True if email is valid
-         */
-        function validateEmail(email) {
-            // RFC 5322 compliant email regex (simplified for demo)
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            
-            // Additional enterprise validations could include:
-            // - Domain whitelist/blacklist
-            // - Corporate domain requirements
-            // - Disposable email detection
-            
-            return emailRegex.test(email) && email.length <= 254;
-        }
-
-        /**
-         * Sanitizes user input to prevent XSS attacks
-         * @param {string} input - User input to sanitize
-         * @returns {string} - Sanitized input
-         */
-        function sanitizeInput(input) {
-            const div = document.createElement('div');
-            div.textContent = input;
-            return div.innerHTML;
-        }
-
-        /* ==========================================
-           USER REGISTRATION FUNCTIONALITY
-           
-           Enterprise User Lifecycle Management:
-           - Account provisioning workflow
-           - Role assignment automation
-           - Welcome email sequences
-           - Audit trail creation
-           - Compliance documentation
-           ========================================== */
-        
-        /**
-         * Handles user registration with enterprise validation
-         * Enterprise implementation would include:
-         * - Email verification workflow
-         * - Manager approval process
-         * - Automatic role assignment
-         * - Integration with HR systems
-         * @param {Event} event - Form submission event
-         */
         function handleRegister(event) {
             event.preventDefault();
             
-            // Extract and sanitize form data
-            const name = sanitizeInput(document.getElementById('reg-name').value.trim());
-            const email = document.getElementById('reg-email').value.trim().toLowerCase();
-            const password = document.getElementById('reg-password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
+            var name = document.getElementById('reg-name').value.trim();
+            var email = document.getElementById('reg-email').value.trim();
+            var password = document.getElementById('reg-password').value;
+            var confirmPassword = document.getElementById('confirm-password').value;
             
-            // Comprehensive validation
-            if (!validateRegistrationData(name, email, password, confirmPassword)) {
-                return; // Validation failed, errors already displayed
-            }
-            
-            // Check for existing user
-            if (users.find(user => user.email === email)) {
-                showFieldError('reg-email', 'Email already registered');
-                logSecurityEvent('registration_duplicate_email', email);
+            if (!validateEmail(email)) {
+                showFieldError('reg-email', 'Please enter a valid email address');
                 return;
             }
             
-            // Show loading state
-            const btn = document.getElementById('register-btn');
+            var existingUser = null;
+            for (var i = 0; i < users.length; i++) {
+                if (users[i].email === email) {
+                    existingUser = users[i];
+                    break;
+                }
+            }
+            
+            if (existingUser) {
+                showFieldError('reg-email', 'Email already registered');
+                return;
+            }
+            
+            if (password.length < 8) {
+                showFieldError('reg-password', 'Password must be at least 8 characters');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showFieldError('confirm-password', 'Passwords do not match');
+                return;
+            }
+            
+            var btn = document.getElementById('register-btn');
             btn.classList.add('loading');
             btn.disabled = true;
             
-            // Simulate registration process with realistic delay
-            setTimeout(() => {
-                try {
-                    // Create new user with enterprise metadata
-                    const newUser = createNewUser(name, email, password);
-                    
-                    // Add user to database
-                    users.push(newUser);
-                    localStorage.setItem('authDemoUsers', JSON.stringify(users));
-                    
-                    // Log successful registration
-                    logSecurityEvent('user_registered', email, {
-                        userId: newUser.id,
-                        registrationMethod: 'self_service'
-                    });
-                    
-                    // Reset button state
-                    btn.classList.remove('loading');
-                    btn.disabled = false;
-                    
-                    // Show success message
-                    showMessage('Account created successfully! Please sign in.', 'success');
-                    
-                    // Auto-switch to login tab with pre-filled email
-                    setTimeout(() => {
-                        switchTab('login');
-                        document.getElementById('login-email').value = email;
-                    }, 1500);
-                    
-                } catch (error) {
-                    // Handle registration errors
-                    btn.classList.remove('loading');
-                    btn.disabled = false;
-                    showMessage('Registration failed. Please try again.', 'error');
-                    logSecurityEvent('registration_error', email, { error: error.message });
-                }
+            setTimeout(function() {
+                var newUser = {
+                    id: Date.now(),
+                    name: name,
+                    email: email,
+                    password: password,
+                    registeredAt: new Date().toISOString(),
+                    mfaEnabled: true
+                };
                 
-            }, 2000); // Realistic processing delay
+                users.push(newUser);
+                localStorage.setItem('authDemoUsers', JSON.stringify(users));
+                
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                
+                showMessage('Account created successfully! Please sign in.', 'success');
+                
+                setTimeout(function() {
+                    switchTab('login');
+                    document.getElementById('login-email').value = email;
+                }, 1500);
+                
+            }, 2000);
         }
 
-        /**
-         * Validates registration data against enterprise policies
-         * @param {string} name - User's full name
-         * @param {string} email - User's email address
-         * @param {string} password - User's password
-         * @param {string} confirmPassword - Password confirmation
-         * @returns {boolean} - True if all validation passes
-         */
-        function validateRegistrationData(name, email, password, confirmPassword) {
-            let isValid = true;
-            
-            // Name validation
-            if (!name || name.length < 2) {
-                showFieldError('reg-name', 'Please enter your full name');
-                isValid = false;
-            }
-            
-            // Email validation
-            if (!validateEmail(email)) {
-                showFieldError('reg-email', 'Please enter a valid email address');
-                isValid = false;
-            }
-            
-            // Password strength validation
-            if (password.length < 8) {
-                showFieldError('reg-password', 'Password must be at least 8 characters');
-                isValid = false;
-            }
-            
-            // Password complexity check
-            if (!password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)) {
-                showFieldError('reg-password', 'Password must include uppercase, lowercase, number, and special character');
-                isValid = false;
-            }
-            
-            // Password confirmation
-            if (password !== confirmPassword) {
-                showFieldError('confirm-password', 'Passwords do not match');
-                isValid = false;
-            }
-            
-            return isValid;
-        }
-
-        /**
-         * Creates new user object with enterprise metadata
-         * @param {string} name - User's full name
-         * @param {string} email - User's email address
-         * @param {string} password - User's password (would be hashed in production)
-         * @returns {Object} - New user object
-         */
-        function createNewUser(name, email, password) {
-            return {
-                id: Date.now(), // In production: UUID
-                name: name,
-                email: email,
-                password: password, // In production: bcrypt hash
-                role: 'user', // Default role
-                registeredAt: new Date().toISOString(),
-                mfaEnabled: true, // Default to enabled for security
-                emailVerified: false, // Would require verification workflow
-                accountStatus: 'active',
-                lastPasswordChange: new Date().toISOString(),
-                loginAttempts: 0,
-                accountLocked: false,
-                preferences: {
-                    emailNotifications: true,
-                    sessionTimeout: 8, // hours
-                    mfaMethod: 'sms'
-                }
-            };
-        }
-
-        /* ==========================================
-           USER LOGIN FUNCTIONALITY
-           
-           Enterprise Authentication Process:
-           - Credential validation
-           - Account status verification
-           - MFA enforcement
-           - Session establishment
-           - Audit logging
-           ========================================== */
-        
-        /**
-         * Handles user login with comprehensive security measures
-         * Enterprise implementation includes:
-         * - Rate limiting
-         * - Account lockout policies
-         * - Geolocation analysis
-         * - Device fingerprinting
-         * @param {Event} event - Form submission event
-         */
         function handleLogin(event) {
             event.preventDefault();
             
-            // Extract credentials
-            const email = document.getElementById('login-email').value.trim().toLowerCase();
-            const password = document.getElementById('login-password').value;
-            const mfaCode = document.getElementById('mfa-code').value;
+            var email = document.getElementById('login-email').value.trim();
+            var password = document.getElementById('login-password').value;
+            var mfaCode = document.getElementById('mfa-code').value;
             
-            // Rate limiting check
-            if (loginAttempts >= 5) {
-                showMessage('Too many failed attempts. Please try again later.', 'error');
-                logSecurityEvent('login_rate_limited', email);
-                return;
-            }
-            
-            // Find user account
-            const user = users.find(u => u.email === email);
-            
-            // Validate credentials
-            if (!user || user.password !== password) {
-                loginAttempts++;
-                showMessage('Invalid email or password', 'error');
-                logSecurityEvent('login_failed', email, { 
-                    reason: 'invalid_credentials',
-                    attempt: loginAttempts 
-                });
-                
-                // Increment user's failed attempts if user exists
-                if (user) {
-                    user.loginAttempts = (user.loginAttempts || 0) + 1;
-                    if (user.loginAttempts >= 5) {
-                        user.accountLocked = true;
-                        logSecurityEvent('account_locked', email);
-                    }
-                    localStorage.setItem('authDemoUsers', JSON.stringify(users));
+            var user = null;
+            for (var i = 0; i < users.length; i++) {
+                if (users[i].email === email) {
+                    user = users[i];
+                    break;
                 }
+            }
+            
+            if (!user || user.password !== password) {
+                showMessage('Invalid email or password', 'error');
                 return;
             }
             
-            // Check account status
-            if (user.accountLocked) {
-                showMessage('Account is locked. Please contact administrator.', 'error');
-                logSecurityEvent('login_blocked', email, { reason: 'account_locked' });
-                return;
-            }
-            
-            // MFA enforcement for enhanced security
             if (user.mfaEnabled && !requiresMFA) {
                 requiresMFA = true;
                 document.getElementById('mfa-section').style.display = 'block';
-                selectMFA(user.preferences?.mfaMethod || 'sms');
+                selectMFA('sms');
                 showMessage('Multi-factor authentication required', 'info');
                 return;
             }
             
-            // MFA validation
             if (requiresMFA) {
                 if (!mfaCode) {
                     showFieldError('mfa-code', 'Please enter the verification code');
@@ -2007,177 +969,126 @@
                 
                 if (mfaCode !== generatedCode) {
                     showFieldError('mfa-code', 'Invalid verification code');
-                    logSecurityEvent('mfa_failed', email, { method: selectedMFA });
                     return;
                 }
-                
-                logSecurityEvent('mfa_success', email, { method: selectedMFA });
             }
             
-            // Show authentication progress
-            const btn = document.getElementById('login-btn');
+            var btn = document.getElementById('login-btn');
             btn.classList.add('loading');
             btn.disabled = true;
             
-            // Simulate authentication process
-            setTimeout(() => {
-                try {
-                    // Successful authentication - update user record
-                    user.lastLogin = new Date().toISOString();
-                    user.loginAttempts = 0; // Reset failed attempts
-                    user.sessionStart = new Date().toISOString();
-                    
-                    // Create secure session
-                    currentUser = { 
-                        ...user, 
-                        sessionToken: generateSessionToken(),
-                        sessionStart: new Date().toISOString()
-                    };
-                    
-                    // Persist session and user data
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    localStorage.setItem('authDemoUsers', JSON.stringify(users));
-                    
-                    // Reset global state
-                    loginAttempts = 0;
-                    requiresMFA = false;
-                    
-                    // Log successful authentication
-                    logSecurityEvent('login_success', email, {
-                        userId: user.id,
-                        mfaUsed: user.mfaEnabled,
-                        sessionToken: currentUser.sessionToken
-                    });
-                    
-                    // Reset UI state
-                    btn.classList.remove('loading');
-                    btn.disabled = false;
-                    
-                    // Success feedback and navigation
-                    showMessage('Login successful!', 'success');
-                    
-                    setTimeout(() => {
-                        showDashboard();
-                    }, 1000);
-                    
-                } catch (error) {
-                    // Handle authentication errors
-                    btn.classList.remove('loading');
-                    btn.disabled = false;
-                    showMessage('Authentication failed. Please try again.', 'error');
-                    logSecurityEvent('login_error', email, { error: error.message });
-                }
+            setTimeout(function() {
+                user.lastLogin = new Date().toISOString();
+                localStorage.setItem('authDemoUsers', JSON.stringify(users));
                 
-            }, 1500); // Realistic authentication delay
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                
+                showMessage('Login successful!', 'success');
+                
+                setTimeout(function() {
+                    showDashboard();
+                }, 1000);
+                
+            }, 1500);
         }
 
-        /**
-         * Generates secure session token
-         * Enterprise implementation would use JWT with proper signing
-         * @returns {string} - Session token
-         */
-        function generateSessionToken() {
-            const array = new Uint8Array(32);
-            crypto.getRandomValues(array);
-            return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
-        }
-
-        /* ==========================================
-           SINGLE SIGN-ON (SSO) FUNCTIONALITY
-           
-           Enterprise SSO Integration:
-           - SAML 2.0 protocol implementation
-           - OAuth 2.0/OpenID Connect support
-           - Multiple identity provider support
-           - Federated authentication workflows
-           ========================================== */
-        
-        /**
-         * Handles SSO authentication with enterprise providers
-         * Enterprise implementation would include:
-         * - SAML assertion validation
-         * - OAuth token exchange
-         * - Attribute mapping from IdP
-         * - Just-in-time provisioning
-         * @param {string} provider - SSO provider identifier
-         */
         function handleSSO(provider) {
-            const btn = event.target;
+            var btn = event.target;
             
-            // Disable button and show redirect state
             btn.style.pointerEvents = 'none';
-            btn.innerHTML = '🔄 Redirecting to ' + provider.toUpperCase() + '...';
+            btn.innerHTML = '🔄 Redirecting...';
             
-            // Log SSO initiation
-            logSecurityEvent('sso_initiated', null, { provider: provider });
-            
-            // Simulate SSO redirect and authentication flow
-            setTimeout(() => {
-                try {
-                    // Simulate successful SSO authentication
-                    const ssoUser = createSSOUser(provider);
-                    
-                    // Establish user session
-                    currentUser = ssoUser;
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
-                    // Log successful SSO authentication
-                    logSecurityEvent('sso_success', ssoUser.email, {
-                        provider: provider,
-                        userId: ssoUser.id,
-                        federatedId: ssoUser.federatedId
-                    });
-                    
-                    // Show success message
-                    showMessage(`Successfully authenticated via ${provider.toUpperCase()}!`, 'success');
-                    
-                    // Navigate to dashboard
-                    setTimeout(() => {
-                        showDashboard();
-                    }, 1000);
-                    
-                } catch (error) {
-                    // Handle SSO errors
-                    btn.style.pointerEvents = 'auto';
-                    btn.innerHTML = '❌ SSO Failed - Try Again';
-                    showMessage('SSO authentication failed. Please try again.', 'error');
-                    logSecurityEvent('sso_error', null, { 
-                        provider: provider, 
-                        error: error.message 
-                    });
-                }
+            setTimeout(function() {
+                var ssoUser = {
+                    id: Date.now(),
+                    name: provider.charAt(0).toUpperCase() + provider.slice(1) + ' User',
+                    email: 'user@' + provider + '.com',
+                    provider: provider,
+                    lastLogin: new Date().toISOString(),
+                    mfaEnabled: true
+                };
                 
-            }, 3000); // Realistic SSO redirect time
+                currentUser = ssoUser;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                showMessage('Successfully authenticated via ' + provider.toUpperCase() + '!', 'success');
+                
+                setTimeout(function() {
+                    showDashboard();
+                }, 1000);
+                
+            }, 2000);
         }
 
-        /**
-         * Creates user object from SSO provider data
-         * @param {string} provider - SSO provider name
-         * @returns {Object} - SSO user object
-         */
-        function createSSOUser(provider) {
-            const providerDomains = {
-                microsoft: 'contoso.com',
-                google: 'company.com',
-                okta: 'enterprise.com',
-                saml: 'corporate.com'
-            };
+        function showDashboard() {
+            document.getElementById('auth-interface').style.display = 'none';
+            document.getElementById('dashboard').classList.add('active');
             
-            return {
-                id: Date.now(),
-                name: `${provider.charAt(0).toUpperCase() + provider.slice(1)} User`,
-                email: `user@${providerDomains[provider]}`,
-                provider: provider,
-                federatedId: `${provider}_${Date.now()}`,
-                lastLogin: new Date().toISOString(),
-                sessionStart: new Date().toISOString(),
-                sessionToken: generateSessionToken(),
-                mfaEnabled: true, // SSO providers typically handle MFA
-                role: 'user',
-                accountStatus: 'active',
-                preferences: {
-                    emailNotifications: true,
-                    sessionTimeout: 8
-                }
-            };
+            document.getElementById('user-name').textContent = 'Welcome, ' + currentUser.name + '!';
+            document.getElementById('user-email').textContent = currentUser.email;
+            document.getElementById('user-avatar').textContent = currentUser.name.charAt(0);
+            
+            if (currentUser.lastLogin) {
+                var lastLogin = new Date(currentUser.lastLogin).toLocaleString();
+                document.getElementById('last-login').textContent = lastLogin;
+            } else {
+                document.getElementById('last-login').textContent = 'First login';
+            }
         }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            requiresMFA = false;
+            
+            document.getElementById('dashboard').classList.remove('active');
+            document.getElementById('auth-interface').style.display = 'block';
+            
+            var forms = document.querySelectorAll('form');
+            for (var i = 0; i < forms.length; i++) {
+                forms[i].reset();
+            }
+            
+            document.getElementById('mfa-section').style.display = 'none';
+            
+            showMessage('Logged out successfully', 'success');
+            switchTab('login');
+        }
+
+        function initializeDemoData() {
+            if (users.length === 0) {
+                users = [
+                    {
+                        id: 1,
+                        name: 'Demo User',
+                        email: 'demo@example.com',
+                        password: 'password123',
+                        registeredAt: new Date().toISOString(),
+                        mfaEnabled: true
+                    },
+                    {
+                        id: 2,
+                        name: 'John Smith',
+                        email: 'john@company.com',
+                        password: 'securepass456',
+                        registeredAt: new Date().toISOString(),
+                        mfaEnabled: true
+                    }
+                ];
+                
+                localStorage.setItem('authDemoUsers', JSON.stringify(users));
+            }
+        }
+
+        // Demo credentials console log
+        console.log('Demo Credentials for Testing:');
+        console.log('Email: demo@example.com');
+        console.log('Password: password123');
+        console.log('Or create a new account using the Register tab');
+    </script>
+</body>
+</html>
