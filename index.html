@@ -712,19 +712,12 @@
                 <!-- Status message display area -->
                 <div class="status-message" id="status-message"></div>
 
-                <!-- 
-                Tab navigation for different authentication methods
-                Enterprise consideration: Different user types need different auth methods
-                - Employees: SSO integration with corporate identity
-                - Partners: Federated authentication 
-                - Customers: Self-service registration
-                - Administrators: Enhanced security requirements
-                -->
+                <!-- Tab navigation for different authentication methods -->
                 <div class="auth-tabs">
-                    <div class="tab active" onclick="switchTab('login')">Login</div>
-                    <div class="tab" onclick="switchTab('register')">Register</div>
-                    <div class="tab" onclick="switchTab('sso')">SSO</div>
-                    <div class="tab" onclick="switchTab('admin')" style="display: none;" id="admin-tab">Admin</div>
+                    <div class="tab active" id="login-tab" data-target="login">Login</div>
+                    <div class="tab" id="register-tab" data-target="register">Register</div>
+                    <div class="tab" id="sso-tab" data-target="sso">SSO</div>
+                    <div class="tab" id="admin-tab" data-target="admin" style="display: none;">Admin</div>
                 </div>
 
                 <!-- ==========================================
@@ -1075,6 +1068,11 @@
         
         // Application initialization when DOM is loaded
         window.addEventListener('load', function() {
+            console.log('🚀 SecureAuth Pro Application Starting...');
+            
+            // Initialize tab click handlers
+            initializeTabNavigation();
+            
             // Check for existing authenticated session
             if (currentUser) {
                 // Validate session is still valid (in production, verify JWT)
@@ -1096,7 +1094,50 @@
             
             // Initialize security monitoring
             initializeSecurityMonitoring();
+            
+            console.log('✅ Application initialized successfully');
         });
+
+        /**
+         * Initializes tab navigation with event listeners
+         * More reliable than onclick attributes
+         */
+        function initializeTabNavigation() {
+            console.log('🔗 Setting up tab navigation...');
+            
+            // Add click handlers to all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = this.getAttribute('data-target') || this.id.replace('-tab', '');
+                    console.log(`📋 Tab clicked: ${target}`);
+                    switchTab(target);
+                });
+                
+                // Add visual feedback
+                tab.style.cursor = 'pointer';
+            });
+            
+            console.log(`✅ Set up ${tabs.length} tab handlers`);
+        }
+
+        /**
+         * Validates current user session
+         * Enterprise implementation would verify JWT token validity
+         * @returns {boolean} - True if session is valid
+         */
+        function validateSession() {
+            if (!currentUser || !currentUser.sessionStart) {
+                return false;
+            }
+            
+            // Check if session is older than 8 hours (enterprise session timeout)
+            const sessionAge = Date.now() - new Date(currentUser.sessionStart).getTime();
+            const maxSessionAge = 8 * 60 * 60 * 1000; // 8 hours
+            
+            return sessionAge < maxSessionAge;
+        }
 
         /**
          * Gets phone number from user (with storage)
@@ -1319,50 +1360,116 @@
         }
 
         /**
-         * Masks phone number for privacy display
-         * @param {string} phoneNumber - Full phone number
-         * @returns {string} Masked phone number
+         * Checks admin access privileges
+         * In production, would verify role-based permissions
          */
-        function maskPhoneNumber(phoneNumber) {
-            if (phoneNumber.length > 4) {
-                const lastFour = phoneNumber.slice(-4);
-                const prefix = phoneNumber.slice(0, 3); // Keep country code
-                return `${prefix}****${lastFour}`;
+        function checkAdminAccess() {
+            // Simple admin check for demo
+            if (currentUser && (currentUser.role === 'admin' || currentUser.email === 'admin@gallagher.com')) {
+                isAdmin = true;
+                document.getElementById('admin-tab').style.display = 'block';
+            } else {
+                isAdmin = false;
+                document.getElementById('admin-tab').style.display = 'none';
             }
-            return phoneNumber;
+        }
+
+        /**
+         * Updates admin dashboard statistics
+         */
+        function updateAdminStats() {
+            try {
+                const totalUsersElement = document.getElementById('total-users');
+                const activeSessionsElement = document.getElementById('active-sessions');
+                const failedLoginsElement = document.getElementById('failed-logins');
+                const mfaEnabledElement = document.getElementById('mfa-enabled');
+                
+                if (totalUsersElement) totalUsersElement.textContent = users.length;
+                if (activeSessionsElement) activeSessionsElement.textContent = currentUser ? 1 : 0;
+                if (failedLoginsElement) failedLoginsElement.textContent = loginAttempts;
+                
+                // Calculate MFA adoption rate
+                const mfaUsers = users.filter(user => user.mfaEnabled).length;
+                const mfaRate = users.length > 0 ? Math.round((mfaUsers / users.length) * 100) : 0;
+                if (mfaEnabledElement) mfaEnabledElement.textContent = mfaRate + '%';
+                
+            } catch (error) {
+                console.log('Admin stats update skipped (elements not found)');
+            }
+        }
+
+        /**
+         * Admin function placeholders
+         */
+        function viewAuditLogs() {
+            alert('Audit Logs:\n\n' + auditLogs.slice(-5).map(log => 
+                `${log.timestamp}: ${log.eventType} - ${log.userEmail || 'anonymous'}`
+            ).join('\n'));
+        }
+
+        function manageUsers() {
+            const userList = users.map(user => 
+                `${user.name} (${user.email}) - ${user.role || 'user'} - ${user.accountStatus || 'active'}`
+            ).join('\n');
+            alert('User Management:\n\n' + userList);
+        }
+
+        function securitySettings() {
+            alert('Security Settings:\n\n' +
+                '• Password Policy: 8+ characters, complexity required\n' +
+                '• MFA: Enabled by default\n' +
+                '• Session Timeout: 8 hours\n' +
+                '• Rate Limiting: 3 attempts per minute\n' +
+                '• Audit Logging: Enabled');
         }
 
         /**
          * Switches between different authentication tabs
-         * Enterprise consideration: Different user types may see different options
          * @param {string} tabName - The name of the tab to switch to
          */
         function switchTab(tabName) {
-            // Remove active state from all tabs and forms
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.form-section').forEach(form => form.classList.remove('active'));
+            console.log(`🔄 Switching to tab: ${tabName}`);
             
-            // Find and activate the clicked tab
-            const clickedTab = document.querySelector(`[onclick="switchTab('${tabName}')"]`);
-            if (clickedTab) {
-                clickedTab.classList.add('active');
+            try {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Remove active class from all form sections
+                document.querySelectorAll('.form-section').forEach(form => {
+                    form.classList.remove('active');
+                });
+                
+                // Activate the clicked tab
+                const activeTab = document.getElementById(tabName + '-tab');
+                if (activeTab) {
+                    activeTab.classList.add('active');
+                    console.log(`✅ Activated tab: ${tabName}`);
+                } else {
+                    console.error(`❌ Tab not found: ${tabName}-tab`);
+                }
+                
+                // Activate the corresponding form
+                const targetForm = document.getElementById(tabName + '-form');
+                if (targetForm) {
+                    targetForm.classList.add('active');
+                    console.log(`✅ Activated form: ${tabName}-form`);
+                } else {
+                    console.error(`❌ Form not found: ${tabName}-form`);
+                }
+                
+                // Clear any existing messages
+                clearMessages();
+                
+                // Log navigation for audit purposes
+                if (typeof logSecurityEvent === 'function') {
+                    logSecurityEvent('tab_navigation', currentUser?.email, { tab: tabName });
+                }
+                
+            } catch (error) {
+                console.error('❌ Error switching tabs:', error);
             }
-            
-            // Activate the corresponding form
-            const targetForm = document.getElementById(tabName + '-form');
-            if (targetForm) {
-                targetForm.classList.add('active');
-            }
-            
-            // Clear any existing messages
-            clearMessages();
-            
-            // Log navigation for audit purposes (only if logSecurityEvent function exists)
-            if (typeof logSecurityEvent === 'function') {
-                logSecurityEvent('tab_navigation', null, { tab: tabName });
-            }
-            
-            console.log(`Switched to ${tabName} tab`);
         }
 
         /* ==========================================
