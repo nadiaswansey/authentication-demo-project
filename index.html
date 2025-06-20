@@ -502,9 +502,9 @@
 
                 <!-- Tab navigation -->
                 <div class="auth-tabs">
-                    <div class="tab active" id="login-tab">Login</div>
-                    <div class="tab" id="register-tab">Register</div>
-                    <div class="tab" id="sso-tab">SSO</div>
+                    <div class="tab active" id="login-tab" onclick="switchTab('login')">Login</div>
+                    <div class="tab" id="register-tab" onclick="switchTab('register')">Register</div>
+                    <div class="tab" id="sso-tab" onclick="switchTab('sso')">SSO</div>
                 </div>
 
                 <!-- Login Form -->
@@ -678,9 +678,6 @@
         window.addEventListener('load', function() {
             console.log('🚀 SecureAuth Pro Application Starting...');
             
-            // Set up tab navigation
-            setupTabs();
-            
             // Check existing session
             if (currentUser) {
                 showDashboard();
@@ -692,68 +689,36 @@
             console.log('✅ Application initialized successfully');
         });
 
-        function setupTabs() {
-            console.log('🔗 Setting up tab navigation...');
-            
-            // Simple direct onclick approach
-            document.getElementById('login-tab').onclick = function() {
-                console.log('Login tab clicked');
-                switchTab('login');
-            };
-            
-            document.getElementById('register-tab').onclick = function() {
-                console.log('Register tab clicked');
-                switchTab('register');
-            };
-            
-            document.getElementById('sso-tab').onclick = function() {
-                console.log('SSO tab clicked');
-                switchTab('sso');
-            };
-            
-            console.log('✅ Tab navigation set up successfully');
-        }
-
+        // Simple switchTab function
         function switchTab(tabName) {
             console.log('🔄 Switching to tab: ' + tabName);
             
-            try {
-                // Remove active class from all tabs
-                var tabs = document.querySelectorAll('.tab');
-                for (var i = 0; i < tabs.length; i++) {
-                    tabs[i].classList.remove('active');
-                }
-                
-                // Remove active class from all form sections
-                var forms = document.querySelectorAll('.form-section');
-                for (var i = 0; i < forms.length; i++) {
-                    forms[i].classList.remove('active');
-                }
-                
-                // Activate the clicked tab
-                var activeTab = document.getElementById(tabName + '-tab');
-                if (activeTab) {
-                    activeTab.classList.add('active');
-                    console.log('✅ Activated tab: ' + tabName);
-                } else {
-                    console.error('❌ Tab not found: ' + tabName + '-tab');
-                }
-                
-                // Activate the corresponding form
-                var targetForm = document.getElementById(tabName + '-form');
-                if (targetForm) {
-                    targetForm.classList.add('active');
-                    console.log('✅ Activated form: ' + tabName + '-form');
-                } else {
-                    console.error('❌ Form not found: ' + tabName + '-form');
-                }
-                
-                // Clear messages
-                clearMessages();
-                
-            } catch (error) {
-                console.error('❌ Error switching tabs:', error);
+            // Remove active class from all tabs
+            var tabs = document.querySelectorAll('.tab');
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
             }
+            
+            // Remove active class from all form sections
+            var forms = document.querySelectorAll('.form-section');
+            for (var i = 0; i < forms.length; i++) {
+                forms[i].classList.remove('active');
+            }
+            
+            // Activate the clicked tab
+            var activeTab = document.getElementById(tabName + '-tab');
+            if (activeTab) {
+                activeTab.classList.add('active');
+            }
+            
+            // Activate the corresponding form
+            var targetForm = document.getElementById(tabName + '-form');
+            if (targetForm) {
+                targetForm.classList.add('active');
+            }
+            
+            // Clear messages
+            clearMessages();
         }
 
         function showMessage(message, type) {
