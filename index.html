@@ -1099,20 +1099,237 @@
         });
 
         /**
-         * Validates current user session
-         * Enterprise implementation would verify JWT token validity
-         * @returns {boolean} - True if session is valid
+         * Gets phone number from user (with storage)
+         * @returns {Promise<string|null>} Phone number or null if cancelled
          */
-        function validateSession() {
-            if (!currentUser || !currentUser.sessionStart) {
-                return false;
+        async function getPhoneNumber() {
+            // Check if we already have a phone number stored
+            if (currentUser?.phoneNumber) {
+                return currentUser.phoneNumber;
             }
             
-            // Check if session is older than 8 hours (enterprise session timeout)
-            const sessionAge = Date.now() - new Date(currentUser.sessionStart).getTime();
-            const maxSessionAge = 8 * 60 * 60 * 1000; // 8 hours
+            // Check localStorage for previously entered phone
+            const savedPhone = localStorage.getItem('userPhoneNumber');
+            if (savedPhone) {
+                const useStored = confirm(`Use previously entered phone number ${maskPhoneNumber(savedPhone)}?`);
+                if (useStored) {
+                    return savedPhone;
+                }
+            }
             
-            return sessionAge < maxSessionAge;
+            // Prompt for new phone number
+            return new Promise((resolve) => {
+                const modal = createPhoneModal();
+                document.body.appendChild(modal);
+                
+                const input = modal.querySelector('#phone-input');
+                const submitBtn = modal.querySelector('#phone-submit');
+                const cancelBtn = modal.querySelector('#phone-cancel');
+                
+                // Submit handler
+                submitBtn.onclick = () => {
+                    const phoneNumber = formatPhoneNumber(input.value);
+                    if (validatePhoneNumber(phoneNumber)) {
+                        // Store for future use
+                        localStorage.setItem('userPhoneNumber', phoneNumber);
+                        if (currentUser) {
+                            currentUser.phoneNumber = phoneNumber;
+                            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        }
+                        
+                        document.body.removeChild(modal);
+                        resolve(phoneNumber);
+                    } else {
+                        showMessage('Please enter a valid phone number (e.g., +1 555 123 4567)', 'error');
+                        input.style.borderColor = '#e53e3e';
+                        input.focus();
+                    }
+                };
+                
+                // Cancel handler
+                cancelBtn.onclick = () => {
+                    document.body.removeChild(modal);
+                    resolve(null);
+                };
+                
+                // Enter key handler
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        submitBtn.click();
+                    }
+                });
+                
+                // Auto-focus and format input
+                setTimeout(() => {
+                    input.focus();
+                    input.addEventListener('input', (e) => {
+                        e.target.style.borderColor = '#e2e8f0'; // Reset border color
+                    });
+                }, 100);
+            });
+        }
+
+        /**
+         * Creates phone number input modal
+         * @returns {HTMLElement} Modal element
+         */
+        function createPhoneModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; 
+                top: 0; 
+                left: 0; 
+                right: 0; 
+                bottom: 0; 
+                background: rgba(0,0,0,0.7); 
+                display: flex; 
+                align-items: center; 
+                justify-content: center; 
+                z-index: 10000;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: white; 
+                    padding: 2rem; 
+                    border-radius: 12px; 
+                    width: 90%; 
+                    max-width: 400px;
+                    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+                    animation: slideIn 0.3s ease;
+                ">
+                    <h3 style="margin-bottom: 1rem; color: #2d3748; text-align: center;">
+                        📱 Enter Your Phone Number
+                    </h3>
+                    <p style="margin-bottom: 1.5rem; color: #718096; font-size: 0.9rem; text-align: center;">
+                        We'll send a verification code to this number via SMS
+                    </p>
+                    <input 
+                        type="tel" 
+                        id="phone-input" 
+                        placeholder="+1 (555) 123-4567" 
+                        style="
+                            width: 100%; 
+                            padding: 0.75rem; 
+                            border: 2px solid #e2e8f0; 
+                            border-radius: 6px; 
+                            margin-bottom: 1.5rem;
+                            font-size: 1rem;
+                            text-align: center;
+                        "
+                    >
+                    <div style="display: flex; gap: 1rem;">
+                        <button id="phone-cancel" style="
+                            flex: 1; 
+                            padding: 0.75rem; 
+                            background: #718096; 
+                            color: white; 
+                            border: none; 
+                            border-radius: 6px; 
+                            cursor: pointer;
+                            font-weight: 600;
+                        ">
+                            Cancel
+                        </button>
+                        <button id="phone-submit" style="
+                            flex: 1; 
+                            padding: 0.75rem; 
+                            background: #4299e1; 
+                            color: white; 
+                            border: none; 
+                            border-radius: 6px; 
+                            cursor: pointer;
+                            font-weight: 600;
+                        ">
+                            Send SMS
+                        </button>
+                    </div>
+                    <p style="margin-top: 1rem; font-size: 0.8rem; color: #a0aec0; text-align: center;">
+                        Standard SMS rates may apply
+                    </p>
+                </div>
+            `;
+            
+            return modal;
+        }
+
+        /**
+         * Sends verification SMS via backend API
+         * @param {string} phoneNumber - Phone number to send SMS to
+         * @returns {Promise<Object>} API response
+         */
+        async function sendVerificationSMS(phoneNumber) {
+            try {
+                const response = await fetch(`${SMS_API_BASE}/api/send-verification-code`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        phoneNumber: phoneNumber,
+                        userEmail: currentUser?.email || 'anonymous'
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('SMS API Response:', result);
+                
+                return result;
+                
+            } catch (error) {
+                console.error('SMS API Error:', error);
+                throw new Error(`Failed to send SMS: ${error.message}`);
+            }
+        }
+
+        /**
+         * Validates phone number format (E.164)
+         * @param {string} phoneNumber - Phone number to validate
+         * @returns {boolean} True if valid
+         */
+        function validatePhoneNumber(phoneNumber) {
+            const phoneRegex = /^\+[1-9]\d{1,14}$/;
+            return phoneRegex.test(phoneNumber) && phoneNumber.length <= 16;
+        }
+
+        /**
+         * Formats phone number to E.164 standard
+         * @param {string} input - Raw phone input
+         * @returns {string} Formatted phone number
+         */
+        function formatPhoneNumber(input) {
+            // Remove all non-digits
+            const digits = input.replace(/\D/g, '');
+            
+            // Add US country code if missing
+            if (digits.length === 10) {
+                return `+1${digits}`;
+            } else if (digits.length === 11 && digits.startsWith('1')) {
+                return `+${digits}`;
+            }
+            
+            // Return with + prefix if not already there
+            return input.startsWith('+') ? input : `+${digits}`;
+        }
+
+        /**
+         * Masks phone number for privacy display
+         * @param {string} phoneNumber - Full phone number
+         * @returns {string} Masked phone number
+         */
+        function maskPhoneNumber(phoneNumber) {
+            if (phoneNumber.length > 4) {
+                const lastFour = phoneNumber.slice(-4);
+                const prefix = phoneNumber.slice(0, 3); // Keep country code
+                return `${prefix}****${lastFour}`;
+            }
+            return phoneNumber;
         }
 
         /**
