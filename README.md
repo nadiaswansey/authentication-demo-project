@@ -40,7 +40,7 @@ This project includes **actual SMS functionality** using Twilio:
 3. Receive verification code on your phone
 4. Complete authentication with real code
 
-![SMS Demo](https://via.placeholder.com/600x300/4299e1/ffffff?text=SMS+Authentication+Demo)
+
 
 ## Installation & Setup
 
@@ -62,7 +62,7 @@ This project includes **actual SMS functionality** using Twilio:
    npm install
    ```
 
-3. **Configure Twilio (Optional# 🔐 SecureAuth Pro - Enterprise Authentication Demo
+3. **Configure Twilio (Optional# SecureAuth Pro - Enterprise Authentication Demo
 
 A comprehensive enterprise authentication system demonstrating modern security practices including Multi-Factor Authentication (MFA), Single Sign-On (SSO), and real SMS integration.
 
@@ -104,7 +104,6 @@ This project includes **actual SMS functionality** using Twilio:
 3. Receive verification code on your phone
 4. Complete authentication with real code
 
-![SMS Demo](https://via.placeholder.com/600x300/4299e1/ffffff?text=SMS+Authentication+Demo)
 
 ##  Installation & Setup
 
@@ -140,7 +139,7 @@ This project includes **actual SMS functionality** using Twilio:
    - Open `index.html` in your browser
    - Or serve via HTTP server: `npx http-server`
 
-## 🔧 API Endpoints
+## API Endpoints
 
 ### SMS Verification
 ```http
@@ -204,7 +203,7 @@ secure-auth-enterprise-demo/
 - **Session management** with timeouts
 - **CORS configuration** for security
 
-## 🏗️ Enterprise Architecture
+## Enterprise Architecture
 
 This demo simulates enterprise-level authentication that would typically integrate with:
 
@@ -214,7 +213,7 @@ This demo simulates enterprise-level authentication that would typically integra
 - **Monitoring**: Application insights and logging
 - **Deployment**: Docker containers, Kubernetes
 
-## 📈 Demo Scenarios
+## Demo Scenarios
 
 ### For Technical Interviews
 1. **Show multi-factor authentication flow**
