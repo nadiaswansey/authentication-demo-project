@@ -575,6 +575,14 @@
                             <div class="success-message" id="reg-email-success"></div>
                         </div>
 
+                        <!-- Added Phone Number Field -->
+                        <div class="form-group">
+                            <label for="reg-phone">Phone Number</label>
+                            <input type="tel" id="reg-phone" placeholder="+1234567890" required>
+                            <div class="error-message" id="reg-phone-error"></div>
+                            <div class="success-message" id="reg-phone-success"></div>
+                        </div>
+
                         <div class="form-group">
                             <label for="reg-password">Password</label>
                             <input type="password" id="reg-password" required oninput="checkPasswordStrength()">
@@ -768,6 +776,26 @@
             return emailRegex.test(email);
         }
 
+        function validatePhoneNumber(phoneNumber) {
+            var phoneRegex = /^\+[1-9]\d{1,14}$/;
+            return phoneRegex.test(phoneNumber) && phoneNumber.length <= 16;
+        }
+
+        function formatPhoneNumber(input) {
+            // Remove all non-digits
+            var digits = input.replace(/\D/g, '');
+            
+            // Add US country code if missing
+            if (digits.length === 10) {
+                return '+1' + digits;
+            } else if (digits.length === 11 && digits.charAt(0) === '1') {
+                return '+' + digits;
+            }
+            
+            // Return with + prefix if not already there
+            return input.charAt(0) === '+' ? input : '+' + digits;
+        }
+
         function checkPasswordStrength() {
             var password = document.getElementById('reg-password').value;
             var strengthBar = document.getElementById('strength-bar');
@@ -827,8 +855,13 @@
             selectedMFA = type;
             
             if (type === 'sms') {
-                // For SMS, try to send real SMS
-                sendRealSMS();
+                // For SMS, use stored phone number or prompt
+                var storedPhone = currentUser && currentUser.phoneNumber;
+                if (storedPhone) {
+                    sendRealSMSToNumber(storedPhone);
+                } else {
+                    sendRealSMS();
+                }
             } else {
                 // For app and email, use demo mode
                 generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -853,6 +886,10 @@
                 return;
             }
             
+            sendRealSMSToNumber(phoneNumber);
+        }
+
+        function sendRealSMSToNumber(phoneNumber) {
             // Format phone number
             phoneNumber = formatPhoneNumber(phoneNumber);
             
@@ -921,26 +958,6 @@
             });
         }
 
-        function formatPhoneNumber(input) {
-            // Remove all non-digits
-            var digits = input.replace(/\D/g, '');
-            
-            // Add US country code if missing
-            if (digits.length === 10) {
-                return '+1' + digits;
-            } else if (digits.length === 11 && digits.charAt(0) === '1') {
-                return '+' + digits;
-            }
-            
-            // Return with + prefix if not already there
-            return input.charAt(0) === '+' ? input : '+' + digits;
-        }
-
-        function validatePhoneNumber(phoneNumber) {
-            var phoneRegex = /^\+[1-9]\d{1,14}$/;
-            return phoneRegex.test(phoneNumber) && phoneNumber.length <= 16;
-        }
-
         function maskPhoneNumber(phoneNumber) {
             if (phoneNumber.length > 4) {
                 var lastFour = phoneNumber.slice(-4);
@@ -955,11 +972,19 @@
             
             var name = document.getElementById('reg-name').value.trim();
             var email = document.getElementById('reg-email').value.trim();
+            var phone = document.getElementById('reg-phone').value.trim();
             var password = document.getElementById('reg-password').value;
             var confirmPassword = document.getElementById('confirm-password').value;
             
             if (!validateEmail(email)) {
                 showFieldError('reg-email', 'Please enter a valid email address');
+                return;
+            }
+            
+            // Format and validate phone number
+            phone = formatPhoneNumber(phone);
+            if (!validatePhoneNumber(phone)) {
+                showFieldError('reg-phone', 'Please enter a valid phone number with country code');
                 return;
             }
             
@@ -995,6 +1020,7 @@
                     id: Date.now(),
                     name: name,
                     email: email,
+                    phoneNumber: phone,
                     password: password,
                     registeredAt: new Date().toISOString(),
                     mfaEnabled: true
@@ -1038,6 +1064,7 @@
             
             if (user.mfaEnabled && !requiresMFA) {
                 requiresMFA = true;
+                currentUser = user; // Set current user for SMS sending
                 document.getElementById('mfa-section').style.display = 'block';
                 selectMFA('sms');
                 showMessage('Multi-factor authentication required', 'info');
@@ -1149,6 +1176,7 @@
                         id: 1,
                         name: 'Demo User',
                         email: 'demo@example.com',
+                        phoneNumber: '+1234567890',
                         password: 'password123',
                         registeredAt: new Date().toISOString(),
                         mfaEnabled: true
@@ -1157,6 +1185,7 @@
                         id: 2,
                         name: 'John Smith',
                         email: 'john@company.com',
+                        phoneNumber: '+1987654321',
                         password: 'securepass456',
                         registeredAt: new Date().toISOString(),
                         mfaEnabled: true
