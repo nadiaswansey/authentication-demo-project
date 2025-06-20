@@ -1342,15 +1342,27 @@
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.form-section').forEach(form => form.classList.remove('active'));
             
-            // Activate selected tab and form
-            event.target.classList.add('active');
-            document.getElementById(tabName + '-form').classList.add('active');
+            // Find and activate the clicked tab
+            const clickedTab = document.querySelector(`[onclick="switchTab('${tabName}')"]`);
+            if (clickedTab) {
+                clickedTab.classList.add('active');
+            }
+            
+            // Activate the corresponding form
+            const targetForm = document.getElementById(tabName + '-form');
+            if (targetForm) {
+                targetForm.classList.add('active');
+            }
             
             // Clear any existing messages
             clearMessages();
             
-            // Log navigation for audit purposes
-            logSecurityEvent('tab_navigation', null, { tab: tabName });
+            // Log navigation for audit purposes (only if logSecurityEvent function exists)
+            if (typeof logSecurityEvent === 'function') {
+                logSecurityEvent('tab_navigation', null, { tab: tabName });
+            }
+            
+            console.log(`Switched to ${tabName} tab`);
         }
 
         /* ==========================================
@@ -1543,14 +1555,79 @@
         }
 
         /* ==========================================
-           VALIDATION UTILITY FUNCTIONS
+           SECURITY AND AUDIT LOGGING FUNCTIONS
            
-           Enterprise Input Validation:
-           - Prevents injection attacks
-           - Enforces business rules
-           - Provides user feedback
-           - Maintains data integrity
+           Enterprise Audit Requirements:
+           - Log all security-related events
+           - Track user authentication attempts
+           - Monitor system access patterns
+           - Compliance reporting capabilities
            ========================================== */
+        
+        /**
+         * Logs security events for audit purposes
+         * Enterprise implementation would send to SIEM/logging service
+         * @param {string} eventType - Type of security event
+         * @param {string} userEmail - User email (if applicable)
+         * @param {Object} metadata - Additional event data
+         */
+        function logSecurityEvent(eventType, userEmail = null, metadata = {}) {
+            const event = {
+                timestamp: new Date().toISOString(),
+                eventType: eventType,
+                userEmail: userEmail,
+                metadata: metadata,
+                userAgent: navigator.userAgent,
+                sessionId: currentUser?.sessionToken || 'anonymous'
+            };
+            
+            // Store in local audit log (in production, send to logging service)
+            auditLogs.push(event);
+            localStorage.setItem('auditLogs', JSON.stringify(auditLogs));
+            
+            // Console log for demo purposes
+            console.log(`Security Event: ${eventType}`, event);
+            
+            // In production, would also:
+            // - Send to centralized logging service
+            // - Alert on suspicious activities
+            // - Integrate with SIEM systems
+        }
+
+        /**
+         * Initializes security monitoring
+         * Sets up event listeners and monitoring systems
+         */
+        function initializeSecurityMonitoring() {
+            // Log page load
+            logSecurityEvent('page_loaded', null, { 
+                url: window.location.href,
+                referrer: document.referrer 
+            });
+            
+            // Monitor for suspicious activities
+            let rapidClickCount = 0;
+            document.addEventListener('click', () => {
+                rapidClickCount++;
+                setTimeout(() => { rapidClickCount--; }, 1000);
+                
+                if (rapidClickCount > 10) {
+                    logSecurityEvent('suspicious_activity', currentUser?.email, { 
+                        type: 'rapid_clicking',
+                        count: rapidClickCount 
+                    });
+                }
+            });
+            
+            // Monitor for copy attempts on sensitive fields
+            document.querySelectorAll('input[type="password"], #mfa-code').forEach(input => {
+                input.addEventListener('copy', () => {
+                    logSecurityEvent('sensitive_data_copied', currentUser?.email, { 
+                        field: input.id 
+                    });
+                });
+            });
+        }
         
         /**
          * Enterprise-grade email validation
