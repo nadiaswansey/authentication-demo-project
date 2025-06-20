@@ -225,6 +225,16 @@
             background: #f7fafc;
         }
 
+        /* Phone number input in MFA */
+        .phone-input-section {
+            display: none;
+            margin-bottom: 1rem;
+        }
+
+        .phone-input-section.active {
+            display: block;
+        }
+
         .mfa-code-input {
             display: none;
         }
@@ -314,6 +324,13 @@
 
         .btn-secondary:hover {
             background: #4a5568;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            width: auto;
+            margin-top: 0.5rem;
         }
 
         /* Loading animation */
@@ -538,6 +555,16 @@
                                 </div>
                             </div>
 
+                            <!-- Phone Number Input for SMS -->
+                            <div class="phone-input-section" id="phone-input-section">
+                                <div class="form-group">
+                                    <label for="mfa-phone">Phone Number</label>
+                                    <input type="tel" id="mfa-phone" placeholder="+1234567890" value="">
+                                    <div class="error-message" id="mfa-phone-error"></div>
+                                    <button type="button" class="btn btn-small" onclick="sendSMSCode()">Send SMS Code</button>
+                                </div>
+                            </div>
+
                             <div class="verification-code" id="verification-display" style="display: none;">
                                 <p>Your verification code:</p>
                                 <strong id="generated-code"></strong>
@@ -575,7 +602,7 @@
                             <div class="success-message" id="reg-email-success"></div>
                         </div>
 
-                        <!-- Added Phone Number Field -->
+                        <!-- Phone Number Field -->
                         <div class="form-group">
                             <label for="reg-phone">Phone Number</label>
                             <input type="tel" id="reg-phone" placeholder="+1234567890" required>
@@ -682,6 +709,9 @@
         var loginAttempts = 0;
         var auditLogs = JSON.parse(localStorage.getItem('auditLogs')) || [];
 
+        // SMS API Configuration
+        var SMS_API_BASE = 'http://localhost:3001';
+
         // Initialize application
         window.addEventListener('load', function() {
             console.log('🚀 SecureAuth Pro Application Starting...');
@@ -695,9 +725,11 @@
             initializeDemoData();
             
             console.log('✅ Application initialized successfully');
+            console.log('Demo Credentials:');
+            console.log('Email: demo@example.com');
+            console.log('Password: password123');
         });
 
-        // Simple switchTab function
         function switchTab(tabName) {
             console.log('🔄 Switching to tab: ' + tabName);
             
@@ -782,18 +814,24 @@
         }
 
         function formatPhoneNumber(input) {
-            // Remove all non-digits
             var digits = input.replace(/\D/g, '');
             
-            // Add US country code if missing
             if (digits.length === 10) {
                 return '+1' + digits;
             } else if (digits.length === 11 && digits.charAt(0) === '1') {
                 return '+' + digits;
             }
             
-            // Return with + prefix if not already there
             return input.charAt(0) === '+' ? input : '+' + digits;
+        }
+
+        function maskPhoneNumber(phoneNumber) {
+            if (phoneNumber.length > 4) {
+                var lastFour = phoneNumber.slice(-4);
+                var prefix = phoneNumber.slice(0, 3);
+                return prefix + '****' + lastFour;
+            }
+            return phoneNumber;
         }
 
         function checkPasswordStrength() {
@@ -812,8 +850,10 @@
             
             if (strength < 50) {
                 strengthBar.className = 'password-strength-bar strength-weak';
+                strengthText.style.display = 'none';
             } else if (strength < 100) {
                 strengthBar.className = 'password-strength-bar strength-medium';
+                strengthText.style.display = 'none';
             } else {
                 strengthBar.className = 'password-strength-bar strength-strong';
                 strengthText.style.display = 'block';
@@ -842,9 +882,6 @@
             }
         }
 
-        // SMS API Configuration
-        var SMS_API_BASE = 'http://localhost:3001'; // Your backend URL
-
         function selectMFA(type) {
             var options = document.querySelectorAll('.mfa-option');
             for (var i = 0; i < options.length; i++) {
@@ -854,16 +891,25 @@
             event.target.classList.add('selected');
             selectedMFA = type;
             
+            // Hide all MFA input sections first
+            document.getElementById('phone-input-section').classList.remove('active');
+            document.getElementById('verification-display').style.display = 'none';
+            document.getElementById('mfa-code-section').classList.remove('active');
+            
             if (type === 'sms') {
-                // For SMS, use stored phone number or prompt
-                var storedPhone = currentUser && currentUser.phoneNumber;
-                if (storedPhone) {
-                    sendRealSMSToNumber(storedPhone);
-                } else {
-                    sendRealSMS();
+                // Show phone input section
+                var phoneInput = document.getElementById('mfa-phone');
+                
+                // Pre-fill with user's phone if available
+                if (currentUser && currentUser.phoneNumber) {
+                    phoneInput.value = currentUser.phoneNumber;
                 }
+                
+                document.getElementById('phone-input-section').classList.add('active');
+                showMessage('Enter your phone number to receive SMS verification', 'info');
+                
             } else {
-                // For app and email, use demo mode
+                // For app and email, generate demo code immediately
                 generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
                 document.getElementById('generated-code').textContent = generatedCode;
                 document.getElementById('verification-display').style.display = 'block';
@@ -872,34 +918,19 @@
             }
         }
 
-        function sendRealSMS() {
-            // Get phone number from user
-            var phoneNumber = prompt('Enter your phone number (e.g., +1234567890):');
+        function sendSMSCode() {
+            var phoneNumber = document.getElementById('mfa-phone').value.trim();
             
             if (!phoneNumber) {
-                // User cancelled, fall back to demo mode
-                generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-                document.getElementById('generated-code').textContent = generatedCode;
-                document.getElementById('verification-display').style.display = 'block';
-                document.getElementById('mfa-code-section').classList.add('active');
-                showMessage('Demo mode: Check the displayed code', 'info');
+                showFieldError('mfa-phone', 'Please enter your phone number');
                 return;
             }
             
-            sendRealSMSToNumber(phoneNumber);
-        }
-
-        function sendRealSMSToNumber(phoneNumber) {
-            // Format phone number
+            // Format and validate phone number
             phoneNumber = formatPhoneNumber(phoneNumber);
             
             if (!validatePhoneNumber(phoneNumber)) {
-                showMessage('Invalid phone number format. Using demo mode.', 'error');
-                // Fall back to demo mode
-                generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-                document.getElementById('generated-code').textContent = generatedCode;
-                document.getElementById('verification-display').style.display = 'block';
-                document.getElementById('mfa-code-section').classList.add('active');
+                showFieldError('mfa-phone', 'Please enter a valid phone number with country code');
                 return;
             }
             
@@ -936,6 +967,8 @@
                         console.log('Demo SMS Code:', generatedCode);
                     }
                     
+                    // Hide phone input and show code input
+                    document.getElementById('phone-input-section').classList.remove('active');
                     document.getElementById('mfa-code-section').classList.add('active');
                     
                     // Focus on code input
@@ -954,17 +987,11 @@
                 generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
                 document.getElementById('generated-code').textContent = generatedCode;
                 document.getElementById('verification-display').style.display = 'block';
+                document.getElementById('phone-input-section').classList.remove('active');
                 document.getElementById('mfa-code-section').classList.add('active');
+                
+                console.log('Demo SMS Code:', generatedCode);
             });
-        }
-
-        function maskPhoneNumber(phoneNumber) {
-            if (phoneNumber.length > 4) {
-                var lastFour = phoneNumber.slice(-4);
-                var prefix = phoneNumber.slice(0, 3); // Keep country code
-                return prefix + '****' + lastFour;
-            }
-            return phoneNumber;
         }
 
         function handleRegister(event) {
@@ -1064,8 +1091,10 @@
             
             if (user.mfaEnabled && !requiresMFA) {
                 requiresMFA = true;
-                currentUser = user; // Set current user for SMS sending
+                currentUser = user; // Set current user for MFA
                 document.getElementById('mfa-section').style.display = 'block';
+                
+                // Auto-select SMS and pre-fill phone if available
                 selectMFA('sms');
                 showMessage('Multi-factor authentication required', 'info');
                 return;
@@ -1154,6 +1183,7 @@
             localStorage.removeItem('currentUser');
             currentUser = null;
             requiresMFA = false;
+            generatedCode = '';
             
             document.getElementById('dashboard').classList.remove('active');
             document.getElementById('auth-interface').style.display = 'block';
@@ -1164,6 +1194,9 @@
             }
             
             document.getElementById('mfa-section').style.display = 'none';
+            document.getElementById('phone-input-section').classList.remove('active');
+            document.getElementById('verification-display').style.display = 'none';
+            document.getElementById('mfa-code-section').classList.remove('active');
             
             showMessage('Logged out successfully', 'success');
             switchTab('login');
@@ -1195,12 +1228,6 @@
                 localStorage.setItem('authDemoUsers', JSON.stringify(users));
             }
         }
-
-        // Demo credentials console log
-        console.log('Demo Credentials for Testing:');
-        console.log('Email: demo@example.com');
-        console.log('Password: password123');
-        console.log('Or create a new account using the Register tab');
     </script>
 </body>
 </html>
